@@ -245,18 +245,36 @@
   const RELOAD_THRESHOLD = 190;
   const START_THRESHOLD = 40;
 
-  /* ── Privacy cover: show when app is hidden, hide when visible ── */
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      privacyCover.style.display = "block";
-    } else {
-      privacyCover.style.display = "none";
-    }
+  /* ── Privacy cover for iOS home screen web app ── */
+  /* iOS fires window blur when user swipes up to app switcher */
+  let coverTimer = null;
+
+  function showCover() {
+    privacyCover.style.display = "block";
+  }
+
+  function hideCover() {
+    clearTimeout(coverTimer);
+    privacyCover.style.display = "none";
+  }
+
+  /* Window blur = app going to background/switcher */
+  window.addEventListener("blur", () => {
+    /* Small delay to avoid flashing on innocent focus loss */
+    coverTimer = setTimeout(showCover, 80);
   });
 
-  /* Also handle page hide/show events for iOS Safari app switcher */
-  window.addEventListener("pagehide", () => { privacyCover.style.display = "block"; });
-  window.addEventListener("pageshow", () => { privacyCover.style.display = "none"; });
+  /* Window focus = app coming back to foreground */
+  window.addEventListener("focus", hideCover);
+
+  /* Backup: visibilitychange for other browsers */
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) { showCover(); } else { hideCover(); }
+  });
+
+  /* pagehide/pageshow for extra coverage */
+  window.addEventListener("pagehide", showCover);
+  window.addEventListener("pageshow", hideCover);
 
   function openPopup() {
     popupOverlay.style.display = "block";
