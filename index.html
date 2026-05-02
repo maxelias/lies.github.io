@@ -15,75 +15,64 @@
 
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
   html { height: 100%; background-color: #111111; }
-
-  body {
-    background: transparent;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-  }
-
+  body { background: transparent; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
   .page { display: none; width: 100vw; min-height: 100vh; }
   .page.active { display: block; }
-
   #page2 { background: #111111; }
-
-  #p1-top-bar {
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 10px;
-    background: #111111;
-    z-index: 1000; display: none;
-  }
-
-  .header-wrap {
-    position: fixed; top: 0; left: 0;
-    width: 100%; z-index: 999;
-    background: #111111;
-  }
+  #p1-top-bar { position: fixed; top: 0; left: 0; width: 100%; height: 10px; background: #111111; z-index: 1000; display: none; }
+  .header-wrap { position: fixed; top: 0; left: 0; width: 100%; z-index: 999; background: #111111; }
   #h2-wrap { background: #111111; }
   .header-wrap img { width: 100%; display: block; }
-
-  #header1-zones {
-    position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%;
-    display: flex;
-  }
-  #header1-left, #header1-right {
-    flex: 1; height: 100%; cursor: pointer;
-  }
-
-  .footer-wrap {
-    position: fixed; bottom: 0; left: 0;
-    width: 100%; z-index: 999;
-    background: #111111;
-  }
+  #header1-zones { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; }
+  #header1-left, #header1-right { flex: 1; height: 100%; cursor: pointer; }
+  .footer-wrap { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 999; background: #111111; }
   .footer-wrap img { width: 100%; display: block; cursor: pointer; }
-
   .content { width: 100%; }
   #p1-content { background: #111111; }
   #p2-content { background: #111111; }
-
   .main-gif, .page2-main { width: 100%; display: block; }
 
-  #gif-wrapper { position: relative; display: block; width: 100%; background: #111111; }
+  /* GIF wrapper — uses canvas trick for partial desaturation */
+  #gif-wrapper {
+    position: relative;
+    display: block;
+    width: 100%;
+    background: #111111;
+  }
 
-  /* GIF enhancement */
+  /* Full GIF with enhancement */
   #main-gif {
+    width: 100%;
+    display: block;
     filter: saturate(1.8) brightness(1.15) contrast(1.08) drop-shadow(0 0 6px rgba(255,255,255,0.12));
   }
 
-  /* Tap zones: same vertical position, split left/right */
-  #licence-tap-left, #licence-tap-right {
+  /* Desaturation overlay — covers top 20%, blends to grey using mix-blend-mode */
+  #gif-desat-overlay {
     position: absolute;
-    top: 51.5%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 20%;
+    background: rgba(128,128,128,0.0);
+    /* Use a luminosity backdrop to wash out colour */
+    backdrop-filter: saturate(0.15);
+    -webkit-backdrop-filter: saturate(0.15);
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* Tap zones */
+  #licence-tap-left{
+    position: absolute;
+    top: 53.5%;
     height: 2%;
     width: 50%;
     z-index: 50;
     cursor: pointer;
   }
   #licence-tap-left  { left: 0; }
-  #licence-tap-right { left: 50%; }
 
   /* Refresh text */
   #refresh-text {
@@ -133,150 +122,32 @@
   .bar:nth-child(11) { transform: rotate(300deg); }
   .bar:nth-child(12) { transform: rotate(330deg); }
 
-  @keyframes rotateCircle {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-  }
-  .spinning {
-    animation: rotateCircle 1.2s linear infinite !important;
-    opacity: 1 !important;
-    transition: none !important;
-  }
+  @keyframes rotateCircle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .spinning { animation: rotateCircle 1.2s linear infinite !important; opacity: 1 !important; transition: none !important; }
 
   /* Bottom sheet popup */
-  #popup-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0);
-    z-index: 2000; display: none;
-    transition: background 0.38s ease;
-  }
+  #popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 2000; display: none; transition: background 0.38s ease; }
   #popup-overlay.open { background: rgba(0,0,0,0.6); }
-
-  #popup-sheet {
-    position: fixed; bottom: 0; left: 0;
-    width: 100%; max-height: 90vh;
-    z-index: 2001;
-    transform: translateY(100%);
-    transition: transform 0.42s cubic-bezier(0.32, 0.72, 0, 1);
-    border-radius: 18px 18px 0 0;
-    overflow: hidden;
-    background: #1a1a1a;
-    will-change: transform;
-  }
+  #popup-sheet { position: fixed; bottom: 0; left: 0; width: 100%; max-height: 90vh; z-index: 2001; transform: translateY(100%); transition: transform 0.42s cubic-bezier(0.32, 0.72, 0, 1); border-radius: 18px 18px 0 0; overflow: hidden; background: #1a1a1a; will-change: transform; }
   #popup-sheet.open { transform: translateY(0); }
   #popup-sheet img { width: 100%; height: auto; display: block; }
 
   /* Shared modal styles */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0);
-    z-index: 3000; display: none;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s ease;
-    padding: 10px;
-  }
-  .modal-overlay.open {
-    display: flex;
-    background: rgba(0,0,0,0.65);
-  }
-
-  .modal-box {
-    background: #373b3e;
-    border-radius: 6px;
-    width: 100%;
-    max-width: 100%;
-    max-height: 92vh;
-    overflow: hidden;
-    transform: scale(0.92) translateY(12px);
-    opacity: 0;
-    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease;
-    display: flex;
-    flex-direction: column;
-  }
-  .modal-overlay.open .modal-box {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
-
-  .modal-header {
-    background: #373b3e;
-    padding: 18px 18px 14px;
-    flex-shrink: 0;
-  }
-  .modal-header h2 {
-    color: #ffffff;
-    font-family: -apple-system, "SF Pro Display", Arial, sans-serif;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -0.2px;
-    text-align: center;
-  }
-
-  .modal-divider {
-    height: 1px;
-    background: rgba(255,255,255,0.25);
-    margin: 0;
-    flex-shrink: 0;
-  }
-
-  .modal-body {
-    background: #373b3e;
-    padding: 20px 20px 24px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    flex: 1;
-  }
-
-  .modal-footer {
-    background: #373b3e;
-    padding: 14px 20px 22px;
-    display: flex;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .modal-close-btn {
-    background: transparent;
-    border: 1.5px solid #d1e6f0;
-    border-radius: 6px;
-    color: #d1e6f0;
-    font-family: -apple-system, "SF Pro Text", Arial, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    padding: 14px 0;
-    width: 100%;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: opacity 0.15s;
-  }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 3000; display: none; align-items: center; justify-content: center; transition: background 0.3s ease; padding: 10px; }
+  .modal-overlay.open { display: flex; background: rgba(0,0,0,0.65); }
+  .modal-box { background: #373b3e; border-radius: 6px; width: 100%; max-width: 100%; max-height: 92vh; overflow: hidden; transform: scale(0.92) translateY(12px); opacity: 0; transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease; display: flex; flex-direction: column; }
+  .modal-overlay.open .modal-box { transform: scale(1) translateY(0); opacity: 1; }
+  .modal-header { background: #373b3e; padding: 18px 18px 14px; flex-shrink: 0; }
+  .modal-header h2 { color: #ffffff; font-family: -apple-system, "SF Pro Display", Arial, sans-serif; font-size: 17px; font-weight: 600; letter-spacing: -0.2px; text-align: center; }
+  .modal-divider { height: 1px; background: rgba(255,255,255,0.25); margin: 0; flex-shrink: 0; }
+  .modal-body { background: #373b3e; padding: 20px 20px 24px; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; }
+  .modal-footer { background: #373b3e; padding: 14px 20px 22px; display: flex; justify-content: center; flex-shrink: 0; }
+  .modal-close-btn { background: transparent; border: 1.5px solid #d1e6f0; border-radius: 6px; color: #d1e6f0; font-family: -apple-system, "SF Pro Text", Arial, sans-serif; font-size: 16px; font-weight: 500; padding: 14px 0; width: 100%; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
   .modal-close-btn:active { opacity: 0.6; }
-
-  /* Licence field styles */
-  .licence-field-label {
-    color: #a8b0b8;
-    font-family: -apple-system, "SF Pro Text", Arial, sans-serif;
-    font-size: 13px;
-    font-weight: 400;
-    margin-bottom: 4px;
-  }
-  .licence-field-value {
-    color: #ffffff;
-    font-family: -apple-system, "SF Pro Display", Arial, sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.4;
-    margin-bottom: 20px;
-  }
+  .licence-field-label { color: #a8b0b8; font-family: -apple-system, "SF Pro Text", Arial, sans-serif; font-size: 13px; font-weight: 400; margin-bottom: 4px; }
+  .licence-field-value { color: #ffffff; font-family: -apple-system, "SF Pro Display", Arial, sans-serif; font-size: 16px; font-weight: 700; line-height: 1.4; margin-bottom: 20px; }
   .licence-field-value:last-child { margin-bottom: 0; }
-
-  /* Conditions image */
-  #conditions-body img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 4px;
-  }
+  #conditions-body img { width: 100%; height: auto; display: block; border-radius: 4px; }
 </style>
 </head>
 <body>
@@ -311,6 +182,8 @@
         fetchpriority="high"
         decoding="async"
       >
+      <!-- Desaturation overlay on top 20% -->
+      <div id="gif-desat-overlay"></div>
       <div id="licence-tap-left"></div>
       <div id="licence-tap-right"></div>
       <div id="refresh-text"></div>
@@ -327,13 +200,11 @@
   </div>
 </div>
 
-<!-- Bottom sheet popup -->
 <div id="popup-overlay"></div>
 <div id="popup-sheet">
   <img src="https://file.garden/aeSpG6iUoRzyQ8ca/popup-7%20(1).png" alt="">
 </div>
 
-<!-- Licence modal (left tap) -->
 <div id="licence-modal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header"><h2>More about your licence</h2></div>
@@ -350,7 +221,6 @@
   </div>
 </div>
 
-<!-- Conditions modal (right tap) -->
 <div id="conditions-modal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header"><h2>Conditions</h2></div>
@@ -366,23 +236,20 @@
 
 <script>
   const GIF_SRC = "https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif";
-
-  const p1           = document.getElementById("page1");
-  const p2           = document.getElementById("page2");
-  const h1wrap       = document.getElementById("h1-wrap");
-  const h2wrap       = document.getElementById("h2-wrap");
-  const f2wrap       = document.getElementById("f2-wrap");
-  const p1TopBar     = document.getElementById("p1-top-bar");
-  const spinner      = document.getElementById("spinner");
-  const html         = document.documentElement;
+  const p1 = document.getElementById("page1");
+  const p2 = document.getElementById("page2");
+  const h1wrap = document.getElementById("h1-wrap");
+  const h2wrap = document.getElementById("h2-wrap");
+  const f2wrap = document.getElementById("f2-wrap");
+  const p1TopBar = document.getElementById("p1-top-bar");
+  const spinner = document.getElementById("spinner");
+  const html = document.documentElement;
   const popupOverlay = document.getElementById("popup-overlay");
-  const popupSheet   = document.getElementById("popup-sheet");
-  const mainGif      = document.getElementById("main-gif");
-
+  const popupSheet = document.getElementById("popup-sheet");
+  const mainGif = document.getElementById("main-gif");
   const RELOAD_THRESHOLD = 190;
-  const START_THRESHOLD  = 40;
+  const START_THRESHOLD = 40;
 
-  /* Bottom sheet popup */
   function openPopup() {
     popupOverlay.style.display = "block";
     popupOverlay.getBoundingClientRect();
@@ -390,7 +257,6 @@
     popupSheet.classList.add("open");
     document.body.style.overflow = "hidden";
   }
-
   function closePopup() {
     popupOverlay.classList.remove("open");
     popupSheet.classList.remove("open");
@@ -400,17 +266,12 @@
       popupOverlay.removeEventListener("transitionend", h);
     });
   }
-
   popupOverlay.addEventListener("touchend", e => { e.preventDefault(); closePopup(); }, { passive: false });
   popupOverlay.addEventListener("click", closePopup);
-
   let sheetStartY = 0;
   popupSheet.addEventListener("touchstart", e => { sheetStartY = e.touches[0].clientY; }, { passive: true });
-  popupSheet.addEventListener("touchend", e => {
-    if (e.changedTouches[0].clientY - sheetStartY > 60) closePopup();
-  }, { passive: true });
+  popupSheet.addEventListener("touchend", e => { if (e.changedTouches[0].clientY - sheetStartY > 60) closePopup(); }, { passive: true });
 
-  /* Generic modal */
   function openModal(id) {
     const el = document.getElementById(id);
     el.style.display = "flex";
@@ -418,60 +279,45 @@
     el.classList.add("open");
     document.body.style.overflow = "hidden";
   }
-
   function closeModal(id) {
     const el = document.getElementById(id);
     el.classList.remove("open");
     document.body.style.overflow = "";
     setTimeout(() => { if (!el.classList.contains("open")) el.style.display = "none"; }, 300);
   }
-
   ["licence-modal", "conditions-modal"].forEach(id => {
     const el = document.getElementById(id);
     el.addEventListener("click", e => { if (e.target === el) closeModal(id); });
     el.addEventListener("touchend", e => { if (e.target === el) { e.preventDefault(); closeModal(id); } }, { passive: false });
   });
-
   document.getElementById("licence-close").addEventListener("click", () => closeModal("licence-modal"));
   document.getElementById("licence-close").addEventListener("touchend", e => { e.preventDefault(); closeModal("licence-modal"); }, { passive: false });
   document.getElementById("conditions-close").addEventListener("click", () => closeModal("conditions-modal"));
   document.getElementById("conditions-close").addEventListener("touchend", e => { e.preventDefault(); closeModal("conditions-modal"); }, { passive: false });
 
-  /* Tap zones */
   function addTapZone(id, fn) {
     const el = document.getElementById(id);
     let tDown = 0;
     el.addEventListener("touchstart", () => { tDown = Date.now(); }, { passive: true });
-    el.addEventListener("touchend", e => {
-      if (Date.now() - tDown < 300) { e.preventDefault(); fn(); }
-    }, { passive: false });
+    el.addEventListener("touchend", e => { if (Date.now() - tDown < 300) { e.preventDefault(); fn(); } }, { passive: false });
     el.addEventListener("click", fn);
   }
-
-  addTapZone("licence-tap-left",  () => openModal("licence-modal"));
+  addTapZone("licence-tap-left", () => openModal("licence-modal"));
   addTapZone("licence-tap-right", () => openModal("conditions-modal"));
 
-  /* Header zones */
   function addZoneTap(id, fn) {
     const el = document.getElementById(id);
     let tDown = 0;
     el.addEventListener("touchstart", () => { tDown = Date.now(); }, { passive: true });
-    el.addEventListener("touchend", e => {
-      if (Date.now() - tDown < 300) { e.preventDefault(); fn(); }
-    }, { passive: false });
+    el.addEventListener("touchend", e => { if (Date.now() - tDown < 300) { e.preventDefault(); fn(); } }, { passive: false });
     el.addEventListener("click", fn);
   }
-
-  addZoneTap("header1-left",  () => showPage(2));
+  addZoneTap("header1-left", () => showPage(2));
   addZoneTap("header1-right", openPopup);
 
-  /* Fake refresh */
   const HOLD_OFFSET = 52;
-
   function fakeRefresh() {
-    const activeContent = p1.classList.contains("active")
-      ? document.getElementById("p1-content")
-      : document.getElementById("p2-content");
+    const activeContent = p1.classList.contains("active") ? document.getElementById("p1-content") : document.getElementById("p2-content");
     spinner.classList.add("spinning");
     setTimeout(() => {
       setRefreshText();
@@ -482,41 +328,35 @@
       mainGif.src = "";
       requestAnimationFrame(() => { mainGif.src = GIF_SRC; });
       activeContent.style.transition = "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)";
-      activeContent.style.transform  = "translateY(0)";
+      activeContent.style.transform = "translateY(0)";
       spinner.classList.remove("spinning");
       spinner.style.transition = "opacity 0.4s";
-      spinner.style.opacity    = "0";
-      setTimeout(() => {
-        spinner.style.transition = "";
-        spinner.style.transform  = "rotate(0deg)";
-        activeContent.style.transition = "";
-      }, 400);
+      spinner.style.opacity = "0";
+      setTimeout(() => { spinner.style.transition = ""; spinner.style.transform = "rotate(0deg)"; activeContent.style.transition = ""; }, 400);
     }, 750);
   }
 
-  /* Layout */
   function setOffsets() {
-    const isP1    = p1.classList.contains("active");
-    const topOff  = isP1 ? 10 : 0;
+    const isP1 = p1.classList.contains("active");
+    const topOff = isP1 ? 10 : 0;
     const hHeight = (isP1 ? h1wrap.offsetHeight : h2wrap.offsetHeight) + topOff;
     const fHeight = f2wrap.offsetHeight || 60;
-    document.getElementById("p1-content").style.paddingTop    = hHeight + "px";
-    document.getElementById("p2-content").style.paddingTop    = (hHeight + 40) + "px";
+    document.getElementById("p1-content").style.paddingTop = hHeight + "px";
+    document.getElementById("p2-content").style.paddingTop = (hHeight + 40) + "px";
     document.getElementById("p2-content").style.paddingBottom = fHeight + "px";
     spinner.style.top = (hHeight + 12) + "px";
     html.style.background = isP1 ? "#111111" : "rgb(0, 37, 100)";
   }
 
   function setRefreshText() {
-    const now    = new Date();
+    const now = new Date();
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const d = now.getDate(), mo = months[now.getMonth()], y = now.getFullYear();
-    let h  = now.getHours();
-    const min  = String(now.getMinutes()).padStart(2, "0");
+    let h = now.getHours();
+    const min = String(now.getMinutes()).padStart(2, "0");
     const ampm = h >= 12 ? "pm" : "am";
     h = h % 12 || 12;
-    document.getElementById("refresh-text").innerHTML =
-      `Refreshed<br><span id="pulse-group">${d} ${mo} ${y}<br>${h}:${min}${ampm}</span>`;
+    document.getElementById("refresh-text").innerHTML = `Refreshed<br><span id="pulse-group">${d} ${mo} ${y}<br>${h}:${min}${ampm}</span>`;
   }
 
   function showPage(n) {
@@ -540,33 +380,21 @@
     setRefreshText();
     const saved = localStorage.getItem("currentPage");
     showPage(saved ? parseInt(saved) : 2);
-    setTimeout(() => {
-      const pg = document.getElementById("pulse-group");
-      if (pg) pg.classList.add("pulse");
-    }, 10);
+    setTimeout(() => { const pg = document.getElementById("pulse-group"); if (pg) pg.classList.add("pulse"); }, 10);
   }
 
   document.getElementById("header2").addEventListener("click", () => showPage(1));
-  document.getElementById("page2").addEventListener("click",   () => showPage(1));
-
-  window.addEventListener("load",   init);
+  document.getElementById("page2").addEventListener("click", () => showPage(1));
+  window.addEventListener("load", init);
   window.addEventListener("resize", setOffsets);
 
-  /* Pull-to-refresh */
   let startY = 0, isDragging = false;
-
   window.addEventListener("touchstart", e => {
-    if (window.scrollY <= 5) {
-      startY = e.touches[0].clientY;
-      isDragging = true;
-      spinner.classList.add("dragging");
-    }
+    if (window.scrollY <= 5) { startY = e.touches[0].clientY; isDragging = true; spinner.classList.add("dragging"); }
   }, { passive: true });
 
   function getDragContent() {
-    return p1.classList.contains("active")
-      ? document.getElementById("p1-content")
-      : document.getElementById("p2-content");
+    return p1.classList.contains("active") ? document.getElementById("p1-content") : document.getElementById("p2-content");
   }
 
   window.addEventListener("touchmove", e => {
@@ -574,12 +402,12 @@
     const diffY = e.touches[0].clientY - startY;
     if (diffY > START_THRESHOLD) {
       const progress = Math.min((diffY - START_THRESHOLD) / (RELOAD_THRESHOLD - START_THRESHOLD), 1);
-      spinner.style.opacity   = progress;
+      spinner.style.opacity = progress;
       spinner.style.transform = `rotate(${progress * 90}deg)`;
       getDragContent().style.transition = "none";
-      getDragContent().style.transform  = `translateY(${progress * HOLD_OFFSET}px)`;
+      getDragContent().style.transform = `translateY(${progress * HOLD_OFFSET}px)`;
     } else {
-      spinner.style.opacity   = 0;
+      spinner.style.opacity = 0;
       spinner.style.transform = "rotate(0deg)";
       getDragContent().style.transform = "translateY(0)";
     }
@@ -592,17 +420,16 @@
     if (diffY >= RELOAD_THRESHOLD) {
       fakeRefresh();
     } else {
-      spinner.style.opacity   = 0;
+      spinner.style.opacity = 0;
       spinner.style.transform = "rotate(0deg)";
       const c = getDragContent();
       c.style.transition = "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)";
-      c.style.transform  = "translateY(0)";
+      c.style.transform = "translateY(0)";
       setTimeout(() => { c.style.transition = ""; }, 300);
     }
     isDragging = false;
   });
 
-  /* Edge swipe right to page 2 */
   let startX = 0;
   window.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, { passive: true });
   window.addEventListener("touchend", e => {
