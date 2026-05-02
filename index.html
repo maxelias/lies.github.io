@@ -33,38 +33,13 @@
   #p2-content { background: #111111; }
   .main-gif, .page2-main { width: 100%; display: block; }
 
-  /* GIF wrapper — uses canvas trick for partial desaturation */
-  #gif-wrapper {
-    position: relative;
-    display: block;
-    width: 100%;
-    background: #111111;
-  }
+  #gif-wrapper { position: relative; display: block; width: 100%; background: #111111; }
 
-  /* Full GIF with enhancement */
-  #main-gif {
-    width: 100%;
-    display: block;
-    filter: saturate(1.8) brightness(1.15) contrast(1.08) drop-shadow(0 0 6px rgba(255,255,255,0.12));
-  }
-
-  /* Desaturation overlay — covers top 20%, blends to grey using mix-blend-mode */
-  #gif-desat-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 20%;
-    background: rgba(128,128,128,0.0);
-    /* Use a luminosity backdrop to wash out colour */
-    backdrop-filter: saturate(0.15);
-    -webkit-backdrop-filter: saturate(0.15);
-    pointer-events: none;
-    z-index: 5;
-  }
+  /* No filters on GIF */
+  #main-gif { width: 100%; display: block; }
 
   /* Tap zones */
-  #licence-tap-left{
+  #licence-tap-left, #licence-tap-right {
     position: absolute;
     top: 53.5%;
     height: 2%;
@@ -73,6 +48,7 @@
     cursor: pointer;
   }
   #licence-tap-left  { left: 0; }
+  #licence-tap-right { left: 50%; }
 
   /* Refresh text */
   #refresh-text {
@@ -132,6 +108,21 @@
   #popup-sheet.open { transform: translateY(0); }
   #popup-sheet img { width: 100%; height: auto; display: block; }
 
+  /* Privacy cover — shown when app is backgrounded */
+  #privacy-cover {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    background: #111111;
+  }
+  #privacy-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
   /* Shared modal styles */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 3000; display: none; align-items: center; justify-content: center; transition: background 0.3s ease; padding: 10px; }
   .modal-overlay.open { display: flex; background: rgba(0,0,0,0.65); }
@@ -151,6 +142,11 @@
 </style>
 </head>
 <body>
+
+<!-- Privacy cover screen -->
+<div id="privacy-cover">
+  <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Screenshot%202026-05-02%20at%202.06.03%E2%80%AFpm.png" alt="">
+</div>
 
 <div id="p1-top-bar"></div>
 
@@ -182,8 +178,6 @@
         fetchpriority="high"
         decoding="async"
       >
-      <!-- Desaturation overlay on top 20% -->
-      <div id="gif-desat-overlay"></div>
       <div id="licence-tap-left"></div>
       <div id="licence-tap-right"></div>
       <div id="refresh-text"></div>
@@ -247,8 +241,22 @@
   const popupOverlay = document.getElementById("popup-overlay");
   const popupSheet = document.getElementById("popup-sheet");
   const mainGif = document.getElementById("main-gif");
+  const privacyCover = document.getElementById("privacy-cover");
   const RELOAD_THRESHOLD = 190;
   const START_THRESHOLD = 40;
+
+  /* ── Privacy cover: show when app is hidden, hide when visible ── */
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      privacyCover.style.display = "block";
+    } else {
+      privacyCover.style.display = "none";
+    }
+  });
+
+  /* Also handle page hide/show events for iOS Safari app switcher */
+  window.addEventListener("pagehide", () => { privacyCover.style.display = "block"; });
+  window.addEventListener("pageshow", () => { privacyCover.style.display = "none"; });
 
   function openPopup() {
     popupOverlay.style.display = "block";
