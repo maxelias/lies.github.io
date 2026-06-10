@@ -33,22 +33,17 @@
   #p2-content { background: #111111; }
   .main-gif, .page2-main { width: 100%; display: block; }
 
-  /* GIF wrapper — uses canvas trick for partial desaturation */
   #gif-wrapper {
     position: relative;
     display: block;
     width: 100%;
     background: #111111;
   }
-
-  /* Full GIF with enhancement */
   #main-gif {
     width: 100%;
     display: block;
     filter: saturate(1.8) brightness(1.15) contrast(1.08) drop-shadow(0 0 6px rgba(255,255,255,0.12));
   }
-
-  /* Desaturation overlay — covers top 20%, blends to grey using mix-blend-mode */
   #gif-desat-overlay {
     position: absolute;
     top: 0;
@@ -56,14 +51,11 @@
     width: 100%;
     height: 20%;
     background: rgba(128,128,128,0.0);
-    /* Use a luminosity backdrop to wash out colour */
     backdrop-filter: saturate(0.15);
     -webkit-backdrop-filter: saturate(0.15);
     pointer-events: none;
     z-index: 5;
   }
-
-  /* Tap zones */
   #licence-tap-left{
     position: absolute;
     top: 53.5%;
@@ -74,7 +66,6 @@
   }
   #licence-tap-left  { left: 0; }
 
-  /* Refresh text */
   #refresh-text {
     position: absolute; top: 45px; right: 7.5px;
     text-align: right;
@@ -92,7 +83,6 @@
   }
   #pulse-group.pulse { animation: textPulse 0.5s cubic-bezier(0.45, 0, 0.55, 1) forwards; }
 
-  /* Spinner */
   #spinner {
     position: fixed; left: 50%;
     width: 28px; height: 28px; margin-left: -14px;
@@ -125,14 +115,12 @@
   @keyframes rotateCircle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .spinning { animation: rotateCircle 1.2s linear infinite !important; opacity: 1 !important; transition: none !important; }
 
-  /* Bottom sheet popup */
   #popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 2000; display: none; transition: background 0.38s ease; }
   #popup-overlay.open { background: rgba(0,0,0,0.6); }
   #popup-sheet { position: fixed; bottom: 0; left: 0; width: 100%; max-height: 90vh; z-index: 2001; transform: translateY(100%); transition: transform 0.42s cubic-bezier(0.32, 0.72, 0, 1); border-radius: 18px 18px 0 0; overflow: hidden; background: #1a1a1a; will-change: transform; }
   #popup-sheet.open { transform: translateY(0); }
   #popup-sheet img { width: 100%; height: auto; display: block; }
 
-  /* Shared modal styles */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 3000; display: none; align-items: center; justify-content: center; transition: background 0.3s ease; padding: 10px; }
   .modal-overlay.open { display: flex; background: rgba(0,0,0,0.65); }
   .modal-box { background: #373b3e; border-radius: 6px; width: 100%; max-width: 100%; max-height: 92vh; overflow: hidden; transform: scale(0.92) translateY(12px); opacity: 0; transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease; display: flex; flex-direction: column; }
@@ -148,6 +136,84 @@
   .licence-field-value { color: #ffffff; font-family: -apple-system, "SF Pro Display", Arial, sans-serif; font-size: 16px; font-weight: 700; line-height: 1.4; margin-bottom: 20px; }
   .licence-field-value:last-child { margin-bottom: 0; }
   #conditions-body img { width: 100%; height: auto; display: block; border-radius: 4px; }
+
+  /* ── Page 2 native UI ── */
+  #p2-content {
+    padding-bottom: 0 !important;
+    background: #111111;
+  }
+
+  /* Favourites carousel */
+  #fav-carousel-outer {
+    padding: 0 16px 0;
+    overflow: hidden;
+    position: relative;
+  }
+  #fav-track {
+    display: flex;
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform;
+  }
+  .fav-slide {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
+  /* Slide 0 — dashed "Tap to manage" */
+  #fav-slide-manage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed rgba(255,255,255,0.45);
+    border-radius: 12px;
+    height: 120px;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 10px;
+  }
+  #fav-slide-manage svg { opacity: 0.85; }
+  #fav-slide-manage span {
+    color: rgba(255,255,255,0.85);
+    font-family: -apple-system, "SF Pro Text", Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    text-align: center;
+  }
+
+  /* Slide 1 — Licence card (uses the remote image) */
+  #fav-slide-licence {
+    cursor: pointer;
+  }
+  #fav-slide-licence img {
+    width: 100%;
+    display: block;
+    border-radius: 12px;
+    height: 120px;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  /* Carousel dots */
+  #fav-dots {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+  .fav-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transition: background 0.2s;
+  }
+  .fav-dot.active { background: rgba(255,255,255,0.9); }
+
+  /* Page 2 below-carousel image */
+  #p2-below-img {
+    width: 100%;
+    display: block;
+  }
 </style>
 </head>
 <body>
@@ -182,7 +248,6 @@
         fetchpriority="high"
         decoding="async"
       >
-      <!-- Desaturation overlay on top 20% -->
       <div id="gif-desat-overlay"></div>
       <div id="licence-tap-left"></div>
       <div id="licence-tap-right"></div>
@@ -193,7 +258,38 @@
 
 <div id="page2" class="page">
   <div class="content" id="p2-content">
-    <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2.png" class="page2-main">
+
+    <!-- Favourites section with carousel -->
+    <div id="fav-carousel-outer">
+      <div id="fav-track">
+
+        <!-- Slide 0: Tap to manage favourites -->
+        <div class="fav-slide" id="fav-slide-0">
+          <div id="fav-slide-manage">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>Tap to manage<br>favourites</span>
+          </div>
+        </div>
+
+        <!-- Slide 1: Licence card -->
+        <div class="fav-slide" id="fav-slide-1">
+          <div id="fav-slide-licence">
+            <img src="https://file.garden/aeSpG6iUoRzyQ8ca/IMG_7790.PNG" alt="Learner Driver Licence" draggable="false">
+          </div>
+        </div>
+
+      </div>
+      <div id="fav-dots">
+        <div class="fav-dot" data-dot="0"></div>
+        <div class="fav-dot" data-dot="1"></div>
+      </div>
+    </div>
+
+    <!-- Rest of page 2 content (the original page2.png below the carousel) -->
+    <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2.png" id="p2-below-img">
+
   </div>
   <div class="footer-wrap" id="f2-wrap">
     <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2footer.png" id="footer2">
@@ -249,6 +345,61 @@
   const mainGif = document.getElementById("main-gif");
   const RELOAD_THRESHOLD = 190;
   const START_THRESHOLD = 40;
+
+  // ── Carousel ──────────────────────────────────────────────────────────────
+  const favTrack = document.getElementById("fav-track");
+  const favDots  = document.querySelectorAll(".fav-dot");
+  let favIndex   = 1; // start on licence card (slide 1)
+  let favSwipeStartX = 0;
+  let favSwipeStartY = 0;
+  let favIsSwiping   = false;
+  const FAV_TOTAL    = 2;
+
+  function setFavSlide(idx, animate = true) {
+    favIndex = Math.max(0, Math.min(idx, FAV_TOTAL - 1));
+    favTrack.style.transition = animate ? "transform 0.38s cubic-bezier(0.32, 0.72, 0, 1)" : "none";
+    favTrack.style.transform  = `translateX(-${favIndex * 100}%)`;
+    favDots.forEach((d, i) => d.classList.toggle("active", i === favIndex));
+  }
+
+  // Touch swipe on carousel
+  const favOuter = document.getElementById("fav-carousel-outer");
+  favOuter.addEventListener("touchstart", e => {
+    favSwipeStartX  = e.touches[0].clientX;
+    favSwipeStartY  = e.touches[0].clientY;
+    favIsSwiping    = true;
+  }, { passive: true });
+
+  favOuter.addEventListener("touchmove", e => {
+    if (!favIsSwiping) return;
+    const dx = e.touches[0].clientX - favSwipeStartX;
+    const dy = e.touches[0].clientY - favSwipeStartY;
+    // Only intercept horizontal swipes
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 6) {
+      e.stopPropagation();
+    }
+  }, { passive: true });
+
+  favOuter.addEventListener("touchend", e => {
+    if (!favIsSwiping) return;
+    favIsSwiping = false;
+    const dx = e.changedTouches[0].clientX - favSwipeStartX;
+    const dy = e.changedTouches[0].clientY - favSwipeStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      if (dx < 0) setFavSlide(favIndex + 1);
+      else         setFavSlide(favIndex - 1);
+    }
+  }, { passive: true });
+
+  // Tap on licence card slide → open modal
+  document.getElementById("fav-slide-licence").addEventListener("click", () => {
+    if (favIndex === 1) openModal("licence-modal");
+  });
+  document.getElementById("fav-slide-licence").addEventListener("touchend", e => {
+    if (favIndex === 1) { e.preventDefault(); openModal("licence-modal"); }
+  }, { passive: false });
+
+  // ── End Carousel ──────────────────────────────────────────────────────────
 
   function openPopup() {
     popupOverlay.style.display = "block";
@@ -380,11 +531,13 @@
     setRefreshText();
     const saved = localStorage.getItem("currentPage");
     showPage(saved ? parseInt(saved) : 2);
+    setFavSlide(1, false); // start on licence card, no animation
     setTimeout(() => { const pg = document.getElementById("pulse-group"); if (pg) pg.classList.add("pulse"); }, 10);
   }
 
   document.getElementById("header2").addEventListener("click", () => showPage(1));
-  document.getElementById("page2").addEventListener("click", () => showPage(1));
+  // Remove the whole-page2 click that navigated away — we only want the header tap
+  // document.getElementById("page2").addEventListener("click", () => showPage(1));
   window.addEventListener("load", init);
   window.addEventListener("resize", setOffsets);
 
