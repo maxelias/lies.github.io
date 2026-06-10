@@ -209,10 +209,17 @@
   }
   .fav-dot.active { background: rgba(255,255,255,0.9); }
 
-  /* Page 2 below-carousel image */
+  /* Page 2 below-carousel image — clipped to hide duplicate favourites at top */
+  #p2-below-wrap {
+    overflow: hidden;
+    width: 100%;
+  }
   #p2-below-img {
     width: 100%;
     display: block;
+    /* Shift image up to hide the top favourites block.
+       Tweak the px value if the cut-off point needs adjusting. */
+    margin-top: -29vw;
   }
 </style>
 </head>
@@ -287,8 +294,10 @@
       </div>
     </div>
 
-    <!-- Rest of page 2 content (the original page2.png below the carousel) -->
-    <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2.png" id="p2-below-img">
+    <!-- page2.png clipped to hide its top favourites section -->
+    <div id="p2-below-wrap">
+      <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2.png" id="p2-below-img">
+    </div>
 
   </div>
   <div class="footer-wrap" id="f2-wrap">
@@ -391,12 +400,12 @@
     }
   }, { passive: true });
 
-  // Tap on licence card slide → open modal
+  // Tap on licence card slide → go to page 1
   document.getElementById("fav-slide-licence").addEventListener("click", () => {
-    if (favIndex === 1) openModal("licence-modal");
+    if (favIndex === 1) showPage(1);
   });
   document.getElementById("fav-slide-licence").addEventListener("touchend", e => {
-    if (favIndex === 1) { e.preventDefault(); openModal("licence-modal"); }
+    if (favIndex === 1) { e.preventDefault(); showPage(1); }
   }, { passive: false });
 
   // ── End Carousel ──────────────────────────────────────────────────────────
