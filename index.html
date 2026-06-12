@@ -8,6 +8,7 @@
 <link rel="icon" href="https://play-lh.googleusercontent.com/uulKLexOFnvrpg5ltH3jBAnCbMMed6VbaogVr9etutmFXO-P5w0JRa7sgJ1EstibjtI=w240-h480-rw" type="image/png">
 <link rel="apple-touch-icon" href="https://file.garden/aeSpG6iUoRzyQ8ca/Screenshot%202026-04-28%20at%204.53.50%E2%80%AFpm.png">
 <link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif">
+
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="App Title">
@@ -29,48 +30,59 @@
   .footer-wrap img { width: 100%; display: block; cursor: pointer; }
   .content { width: 100%; }
   #p1-content { background: #111111; }
-  #p2-content { background: #111111; padding-bottom: 0 !important; }
-  .main-gif { width: 100%; display: block; }
+  #p2-content { background: #111111; }
+  .main-gif, .page2-main { width: 100%; display: block; }
 
-  /* ── Page 1 GIF ── */
   #gif-wrapper { position: relative; display: block; width: 100%; background: #111111; }
-  #main-gif {
-    width: 100%; display: block;
+
+  /* No filters on GIF */
+  #main-gif { width: 100%; display: block; }
+
+  /* Tap zones */
+  #licence-tap-left, #licence-tap-right {
+    position: absolute;
+    top: 53.5%;
+    height: 2%;
+    width: 50%;
+    z-index: 50;
+    cursor: pointer;
   }
-  #gif-desat-overlay {
-    position: absolute; top: 0; left: 0; width: 100%; height: 20%;
-    background: rgba(128,128,128,0.0);
-    pointer-events: none; z-index: 5;
-  }
-  #licence-tap-left {
-    position: absolute; top: 53.5%; height: 2%; width: 50%;
-    z-index: 50; cursor: pointer; left: 0;
-  }
+  #licence-tap-left  { left: 0; }
+  #licence-tap-right { left: 50%; }
+
+  /* Refresh text */
   #refresh-text {
     position: absolute; top: 45px; right: 7.5px;
-    text-align: right; font-family: "Acumin Pro", Arial, sans-serif;
+    text-align: right;
+    font-family: "Acumin Pro", Arial, sans-serif;
     font-weight: bold; font-size: 14px; line-height: 1.36;
-    color: #d5d5d5; pointer-events: none; z-index: 10; white-space: nowrap;
+    color: #d5d5d5;
+    pointer-events: none; z-index: 10; white-space: nowrap;
   }
   #pulse-group { display: inline-block; transform-origin: top right; will-change: transform; }
+
   @keyframes textPulse {
-    0%   { transform: scale(1); }
+    0%   { transform: scale(1);   }
     45%  { transform: scale(1.4); }
-    100% { transform: scale(1); }
+    100% { transform: scale(1);   }
   }
   #pulse-group.pulse { animation: textPulse 0.5s cubic-bezier(0.45, 0, 0.55, 1) forwards; }
 
-  /* ── Spinner ── */
+  /* Spinner */
   #spinner {
-    position: fixed; left: 50%; width: 28px; height: 28px; margin-left: -14px;
-    opacity: 0; z-index: 1000; pointer-events: none; transform: rotate(0deg);
+    position: fixed; left: 50%;
+    width: 28px; height: 28px; margin-left: -14px;
+    opacity: 0; z-index: 1000; pointer-events: none;
+    transform: rotate(0deg);
     display: flex; align-items: center; justify-content: center;
     transition: opacity 0.3s, transform 0.3s;
   }
   #spinner.dragging { transition: none; }
+
   .bar {
     position: absolute; width: 2.5px; height: 7.5px;
-    background: rgba(255,255,255,0.4); top: 0; left: 50%;
+    background: rgba(255,255,255,0.4);
+    top: 0; left: 50%;
     transform-origin: center 14px; border-radius: 2px;
   }
   .bar:nth-child(1)  { transform: rotate(0deg);   }
@@ -85,92 +97,56 @@
   .bar:nth-child(10) { transform: rotate(270deg); }
   .bar:nth-child(11) { transform: rotate(300deg); }
   .bar:nth-child(12) { transform: rotate(330deg); }
+
   @keyframes rotateCircle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .spinning { animation: rotateCircle 1.2s linear infinite !important; opacity: 1 !important; transition: none !important; }
 
-  /* ── Popup sheet ── */
+  /* Bottom sheet popup */
   #popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 2000; display: none; transition: background 0.38s ease; }
   #popup-overlay.open { background: rgba(0,0,0,0.6); }
   #popup-sheet { position: fixed; bottom: 0; left: 0; width: 100%; max-height: 90vh; z-index: 2001; transform: translateY(100%); transition: transform 0.42s cubic-bezier(0.32, 0.72, 0, 1); border-radius: 18px 18px 0 0; overflow: hidden; background: #1a1a1a; will-change: transform; }
   #popup-sheet.open { transform: translateY(0); }
   #popup-sheet img { width: 100%; height: auto; display: block; }
 
-  /* ── Modals ── */
+  /* Privacy cover — shown when app is backgrounded */
+  #privacy-cover {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    background: #111111;
+  }
+  #privacy-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Shared modal styles */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 3000; display: none; align-items: center; justify-content: center; transition: background 0.3s ease; padding: 10px; }
   .modal-overlay.open { display: flex; background: rgba(0,0,0,0.65); }
   .modal-box { background: #373b3e; border-radius: 6px; width: 100%; max-width: 100%; max-height: 92vh; overflow: hidden; transform: scale(0.92) translateY(12px); opacity: 0; transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease; display: flex; flex-direction: column; }
   .modal-overlay.open .modal-box { transform: scale(1) translateY(0); opacity: 1; }
   .modal-header { background: #373b3e; padding: 18px 18px 14px; flex-shrink: 0; }
-  .modal-header h2 { color: #fff; font-family: -apple-system, "SF Pro Display", Arial, sans-serif; font-size: 17px; font-weight: 600; letter-spacing: -0.2px; text-align: center; }
-  .modal-divider { height: 1px; background: rgba(255,255,255,0.25); flex-shrink: 0; }
+  .modal-header h2 { color: #ffffff; font-family: -apple-system, "SF Pro Display", Arial, sans-serif; font-size: 17px; font-weight: 600; letter-spacing: -0.2px; text-align: center; }
+  .modal-divider { height: 1px; background: rgba(255,255,255,0.25); margin: 0; flex-shrink: 0; }
   .modal-body { background: #373b3e; padding: 20px 20px 24px; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; }
   .modal-footer { background: #373b3e; padding: 14px 20px 22px; display: flex; justify-content: center; flex-shrink: 0; }
-  .modal-close-btn { background: transparent; border: 1.5px solid #d1e6f0; border-radius: 6px; color: #d1e6f0; font-family: -apple-system, "SF Pro Text", Arial, sans-serif; font-size: 16px; font-weight: 500; padding: 14px 0; width: 100%; cursor: pointer; transition: opacity 0.15s; }
+  .modal-close-btn { background: transparent; border: 1.5px solid #d1e6f0; border-radius: 6px; color: #d1e6f0; font-family: -apple-system, "SF Pro Text", Arial, sans-serif; font-size: 16px; font-weight: 500; padding: 14px 0; width: 100%; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
   .modal-close-btn:active { opacity: 0.6; }
   .licence-field-label { color: #a8b0b8; font-family: -apple-system, "SF Pro Text", Arial, sans-serif; font-size: 13px; font-weight: 400; margin-bottom: 4px; }
-  .licence-field-value { color: #fff; font-family: -apple-system, "SF Pro Display", Arial, sans-serif; font-size: 16px; font-weight: 700; line-height: 1.4; margin-bottom: 20px; }
+  .licence-field-value { color: #ffffff; font-family: -apple-system, "SF Pro Display", Arial, sans-serif; font-size: 16px; font-weight: 700; line-height: 1.4; margin-bottom: 20px; }
   .licence-field-value:last-child { margin-bottom: 0; }
   #conditions-body img { width: 100%; height: auto; display: block; border-radius: 4px; }
-
-  /* ── Page 2 layout ──
-     Structure: fixed header (h2-wrap) → paddingTop gap → carousel → clipped page2 image
-     The page2 image already contains "Favourites" label + carousel placeholder baked in.
-     We overlay our real carousel on top of that region by using negative margin-top on the image
-     to push it up so the baked-in carousel is hidden behind/above the real one.
-  */
-
-  /* Carousel sits directly below the header padding */
-  #fav-section {
-    padding: 0 16px 10px;
-  }
-  /* "Favourites" label above carousel */
-  #fav-label {
-    color: #fff;
-    font-family: -apple-system, "SF Pro Display", Arial, sans-serif;
-    font-size: 22px; font-weight: 700;
-    margin-bottom: 12px;
-  }
-
-  /* Carousel track */
-  #fav-carousel-outer { overflow: hidden; position: relative; }
-  #fav-track {
-    display: flex;
-    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
-    will-change: transform;
-  }
-  .fav-slide { flex: 0 0 100%; width: 100%; }
-
-  /* Slide 0 — dashed "Tap to manage" */
-  #fav-slide-manage {
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 10px;
-    border: 2px dashed rgba(255,255,255,0.45);
-    border-radius: 14px; height: 128px; cursor: pointer;
-  }
-  #fav-slide-manage span {
-    color: rgba(255,255,255,0.85);
-    font-family: -apple-system, "SF Pro Text", Arial, sans-serif;
-    font-size: 16px; font-weight: 400; text-align: center;
-  }
-
-  /* Slide 1 — Licence card image */
-  #fav-slide-licence { cursor: pointer; border-radius: 14px; overflow: hidden; height: 128px; }
-  #fav-slide-licence img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: top center; }
-
-  /* Dots */
-  #fav-dots { display: flex; justify-content: center; gap: 7px; margin-top: 10px; }
-  .fav-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.28); transition: background 0.2s; }
-  .fav-dot.active { background: rgba(255,255,255,0.9); }
-
-  /* page2 background image — clipped to remove its baked-in Favourites block.
-     The image contains: header area + "Favourites" label + carousel placeholder + rest of content.
-     We hide everything above "Featured" by shifting the image up with a negative margin-top.
-     --clip-top controls how much is hidden. Adjust if the seam is wrong. */
-  #p2-bg-wrap { overflow: hidden; width: 100%; }
-  #p2-bg-img  { width: 100%; display: block; margin-top: var(--p2-clip, -38vw); }
 </style>
 </head>
 <body>
+
+<!-- Privacy cover screen -->
+<div id="privacy-cover">
+  <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Screenshot%202026-05-02%20at%202.06.03%E2%80%AFpm.png" alt="">
+</div>
 
 <div id="p1-top-bar"></div>
 
@@ -192,13 +168,16 @@
   <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
 </div>
 
-<!-- PAGE 1 -->
 <div id="page1" class="page">
   <div class="content" id="p1-content">
     <div id="gif-wrapper">
-      <img id="main-gif" src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif"
-           class="main-gif" fetchpriority="high" decoding="async">
-      <div id="gif-desat-overlay"></div>
+      <img
+        id="main-gif"
+        src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif"
+        class="main-gif"
+        fetchpriority="high"
+        decoding="async"
+      >
       <div id="licence-tap-left"></div>
       <div id="licence-tap-right"></div>
       <div id="refresh-text"></div>
@@ -206,71 +185,27 @@
   </div>
 </div>
 
-<!-- PAGE 2 -->
 <div id="page2" class="page">
   <div class="content" id="p2-content">
-
-    <!-- Favourites carousel — sits above the page2 background image -->
-    <div id="fav-section">
-      <div id="fav-label">Favourites</div>
-      <div id="fav-carousel-outer">
-        <div id="fav-track">
-
-          <!-- Slide 0: Tap to manage favourites -->
-          <div class="fav-slide">
-            <div id="fav-slide-manage">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-                   stroke="rgba(255,255,255,0.82)" stroke-width="1.6"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-              </svg>
-              <span>Tap to manage<br>favourites</span>
-            </div>
-          </div>
-
-          <!-- Slide 1: Licence card — tap goes to page 1 -->
-          <div class="fav-slide">
-            <div id="fav-slide-licence">
-              <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Screenshot%202026-06-10%20at%209.10.20%E2%80%AFpm.png"
-                   alt="Learner Driver Licence" draggable="false">
-            </div>
-          </div>
-
-        </div><!-- end fav-track -->
-      </div><!-- end fav-carousel-outer -->
-      <div id="fav-dots">
-        <div class="fav-dot" data-dot="0"></div>
-        <div class="fav-dot" data-dot="1"></div>
-      </div>
-    </div><!-- end fav-section -->
-
-    <!-- New page 2 background image, clipped to hide its baked-in favourites block -->
-    <div id="p2-bg-wrap">
-      <img id="p2-bg-img"
-           src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20-%2010%20June%202026%20at%2020.12.35-1.png"
-           alt="">
-    </div>
-
+    <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2.png" class="page2-main">
   </div>
   <div class="footer-wrap" id="f2-wrap">
     <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2footer.png" id="footer2">
   </div>
 </div>
 
-<!-- Popup sheet -->
 <div id="popup-overlay"></div>
 <div id="popup-sheet">
   <img src="https://file.garden/aeSpG6iUoRzyQ8ca/popup-7%20(1).png" alt="">
 </div>
 
-<!-- Modals -->
 <div id="licence-modal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header"><h2>More about your licence</h2></div>
     <div class="modal-divider"></div>
     <div class="modal-body">
       <div class="licence-field-label">Class</div>
-      <div class="licence-field-value">C — Vehicle seating up to 12 adults,<br>to 4.5 tonnes GVM; Tractor, Implement</div>
+      <div class="licence-field-value">C — Vehicle seating up to 12 adults,<br>to 4.5 tonnes GVM; Tractor,<br>Implement</div>
       <div class="licence-field-label">Expiry date</div>
       <div class="licence-field-value">07 Mar 2031</div>
     </div>
@@ -295,75 +230,52 @@
 
 <script>
   const GIF_SRC = "https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif";
-  const p1      = document.getElementById("page1");
-  const p2      = document.getElementById("page2");
-  const h1wrap  = document.getElementById("h1-wrap");
-  const h2wrap  = document.getElementById("h2-wrap");
-  const f2wrap  = document.getElementById("f2-wrap");
+  const p1 = document.getElementById("page1");
+  const p2 = document.getElementById("page2");
+  const h1wrap = document.getElementById("h1-wrap");
+  const h2wrap = document.getElementById("h2-wrap");
+  const f2wrap = document.getElementById("f2-wrap");
   const p1TopBar = document.getElementById("p1-top-bar");
   const spinner = document.getElementById("spinner");
-  const html    = document.documentElement;
+  const html = document.documentElement;
   const popupOverlay = document.getElementById("popup-overlay");
-  const popupSheet   = document.getElementById("popup-sheet");
+  const popupSheet = document.getElementById("popup-sheet");
   const mainGif = document.getElementById("main-gif");
+  const privacyCover = document.getElementById("privacy-cover");
   const RELOAD_THRESHOLD = 190;
-  const START_THRESHOLD  = 40;
+  const START_THRESHOLD = 40;
 
-  // ── Favourites carousel ──────────────────────────────────────────────────
-  const favTrack = document.getElementById("fav-track");
-  const favDots  = document.querySelectorAll(".fav-dot");
-  let favIndex = 1; // start on licence card
-  const FAV_TOTAL = 2;
+  /* ── Privacy cover for iOS home screen web app ── */
+  /* iOS fires window blur when user swipes up to app switcher */
+  let coverTimer = null;
 
-  function setFavSlide(idx, animate = true) {
-    favIndex = Math.max(0, Math.min(idx, FAV_TOTAL - 1));
-    favTrack.style.transition = animate
-      ? "transform 0.38s cubic-bezier(0.32, 0.72, 0, 1)"
-      : "none";
-    favTrack.style.transform = `translateX(-${favIndex * 100}%)`;
-    favDots.forEach((d, i) => d.classList.toggle("active", i === favIndex));
+  function showCover() {
+    privacyCover.style.display = "block";
   }
 
-  // Touch swipe on carousel only (doesn't bleed into page scroll)
-  let favSwipeStartX = 0, favSwipeStartY = 0, favIsSwiping = false;
-  const favOuter = document.getElementById("fav-carousel-outer");
+  function hideCover() {
+    clearTimeout(coverTimer);
+    privacyCover.style.display = "none";
+  }
 
-  favOuter.addEventListener("touchstart", e => {
-    favSwipeStartX = e.touches[0].clientX;
-    favSwipeStartY = e.touches[0].clientY;
-    favIsSwiping = true;
-  }, { passive: true });
+  /* Window blur = app going to background/switcher */
+  window.addEventListener("blur", () => {
+    /* Small delay to avoid flashing on innocent focus loss */
+    coverTimer = setTimeout(showCover, 80);
+  });
 
-  favOuter.addEventListener("touchmove", e => {
-    if (!favIsSwiping) return;
-    const dx = Math.abs(e.touches[0].clientX - favSwipeStartX);
-    const dy = Math.abs(e.touches[0].clientY - favSwipeStartY);
-    if (dx > dy && dx > 6) e.stopPropagation();
-  }, { passive: true });
+  /* Window focus = app coming back to foreground */
+  window.addEventListener("focus", hideCover);
 
-  favOuter.addEventListener("touchend", e => {
-    if (!favIsSwiping) return;
-    favIsSwiping = false;
-    const dx = e.changedTouches[0].clientX - favSwipeStartX;
-    const dy = e.changedTouches[0].clientY - favSwipeStartY;
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
-      setFavSlide(dx < 0 ? favIndex + 1 : favIndex - 1);
-    }
-  }, { passive: true });
+  /* Backup: visibilitychange for other browsers */
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) { showCover(); } else { hideCover(); }
+  });
 
-  // Tap on licence card → go to page 1
-  const licenceSlide = document.getElementById("fav-slide-licence");
-  let licTouchDown = 0;
-  licenceSlide.addEventListener("touchstart", () => { licTouchDown = Date.now(); }, { passive: true });
-  licenceSlide.addEventListener("touchend", e => {
-    if (favIndex === 1 && Date.now() - licTouchDown < 300) {
-      e.preventDefault();
-      showPage(1);
-    }
-  }, { passive: false });
-  licenceSlide.addEventListener("click", () => { if (favIndex === 1) showPage(1); });
+  /* pagehide/pageshow for extra coverage */
+  window.addEventListener("pagehide", showCover);
+  window.addEventListener("pageshow", hideCover);
 
-  // ── Popup ────────────────────────────────────────────────────────────────
   function openPopup() {
     popupOverlay.style.display = "block";
     popupOverlay.getBoundingClientRect();
@@ -386,7 +298,6 @@
   popupSheet.addEventListener("touchstart", e => { sheetStartY = e.touches[0].clientY; }, { passive: true });
   popupSheet.addEventListener("touchend", e => { if (e.changedTouches[0].clientY - sheetStartY > 60) closePopup(); }, { passive: true });
 
-  // ── Modals ───────────────────────────────────────────────────────────────
   function openModal(id) {
     const el = document.getElementById(id);
     el.style.display = "flex";
@@ -402,44 +313,37 @@
   }
   ["licence-modal", "conditions-modal"].forEach(id => {
     const el = document.getElementById(id);
-    el.addEventListener("click",    e => { if (e.target === el) closeModal(id); });
+    el.addEventListener("click", e => { if (e.target === el) closeModal(id); });
     el.addEventListener("touchend", e => { if (e.target === el) { e.preventDefault(); closeModal(id); } }, { passive: false });
   });
-  document.getElementById("licence-close").addEventListener("click",    () => closeModal("licence-modal"));
+  document.getElementById("licence-close").addEventListener("click", () => closeModal("licence-modal"));
   document.getElementById("licence-close").addEventListener("touchend", e => { e.preventDefault(); closeModal("licence-modal"); }, { passive: false });
-  document.getElementById("conditions-close").addEventListener("click",    () => closeModal("conditions-modal"));
+  document.getElementById("conditions-close").addEventListener("click", () => closeModal("conditions-modal"));
   document.getElementById("conditions-close").addEventListener("touchend", e => { e.preventDefault(); closeModal("conditions-modal"); }, { passive: false });
 
-  // ── Tap zones on page 1 GIF ──────────────────────────────────────────────
   function addTapZone(id, fn) {
     const el = document.getElementById(id);
-    if (!el) return;
     let tDown = 0;
     el.addEventListener("touchstart", () => { tDown = Date.now(); }, { passive: true });
-    el.addEventListener("touchend",   e  => { if (Date.now() - tDown < 300) { e.preventDefault(); fn(); } }, { passive: false });
+    el.addEventListener("touchend", e => { if (Date.now() - tDown < 300) { e.preventDefault(); fn(); } }, { passive: false });
     el.addEventListener("click", fn);
   }
-  addTapZone("licence-tap-left",  () => openModal("licence-modal"));
+  addTapZone("licence-tap-left", () => openModal("licence-modal"));
   addTapZone("licence-tap-right", () => openModal("conditions-modal"));
 
-  // ── Header zone taps ─────────────────────────────────────────────────────
   function addZoneTap(id, fn) {
     const el = document.getElementById(id);
-    if (!el) return;
     let tDown = 0;
     el.addEventListener("touchstart", () => { tDown = Date.now(); }, { passive: true });
-    el.addEventListener("touchend",   e  => { if (Date.now() - tDown < 300) { e.preventDefault(); fn(); } }, { passive: false });
+    el.addEventListener("touchend", e => { if (Date.now() - tDown < 300) { e.preventDefault(); fn(); } }, { passive: false });
     el.addEventListener("click", fn);
   }
-  addZoneTap("header1-left",  () => showPage(2));
+  addZoneTap("header1-left", () => showPage(2));
   addZoneTap("header1-right", openPopup);
 
-  // ── Pull-to-refresh ───────────────────────────────────────────────────────
   const HOLD_OFFSET = 52;
   function fakeRefresh() {
-    const ac = p1.classList.contains("active")
-      ? document.getElementById("p1-content")
-      : document.getElementById("p2-content");
+    const activeContent = p1.classList.contains("active") ? document.getElementById("p1-content") : document.getElementById("p2-content");
     spinner.classList.add("spinning");
     setTimeout(() => {
       setRefreshText();
@@ -449,37 +353,36 @@
       });
       mainGif.src = "";
       requestAnimationFrame(() => { mainGif.src = GIF_SRC; });
-      ac.style.transition = "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)";
-      ac.style.transform  = "translateY(0)";
+      activeContent.style.transition = "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)";
+      activeContent.style.transform = "translateY(0)";
       spinner.classList.remove("spinning");
       spinner.style.transition = "opacity 0.4s";
-      spinner.style.opacity    = "0";
-      setTimeout(() => { spinner.style.transition = ""; spinner.style.transform = "rotate(0deg)"; ac.style.transition = ""; }, 400);
+      spinner.style.opacity = "0";
+      setTimeout(() => { spinner.style.transition = ""; spinner.style.transform = "rotate(0deg)"; activeContent.style.transition = ""; }, 400);
     }, 750);
   }
 
   function setOffsets() {
-    const isP1    = p1.classList.contains("active");
-    const topOff  = isP1 ? 10 : 0;
+    const isP1 = p1.classList.contains("active");
+    const topOff = isP1 ? 10 : 0;
     const hHeight = (isP1 ? h1wrap.offsetHeight : h2wrap.offsetHeight) + topOff;
     const fHeight = f2wrap.offsetHeight || 60;
     document.getElementById("p1-content").style.paddingTop = hHeight + "px";
-    document.getElementById("p2-content").style.paddingTop = (hHeight + 14) + "px";
+    document.getElementById("p2-content").style.paddingTop = (hHeight + 40) + "px";
     document.getElementById("p2-content").style.paddingBottom = fHeight + "px";
     spinner.style.top = (hHeight + 12) + "px";
-    html.style.background = "#111111";
+    html.style.background = isP1 ? "#111111" : "rgb(0, 37, 100)";
   }
 
   function setRefreshText() {
-    const now    = new Date();
+    const now = new Date();
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const d  = now.getDate(), mo = months[now.getMonth()], y = now.getFullYear();
-    let h    = now.getHours();
-    const min  = String(now.getMinutes()).padStart(2, "0");
+    const d = now.getDate(), mo = months[now.getMonth()], y = now.getFullYear();
+    let h = now.getHours();
+    const min = String(now.getMinutes()).padStart(2, "0");
     const ampm = h >= 12 ? "pm" : "am";
     h = h % 12 || 12;
-    document.getElementById("refresh-text").innerHTML =
-      `Refreshed<br><span id="pulse-group">${d} ${mo} ${y}<br>${h}:${min}${ampm}</span>`;
+    document.getElementById("refresh-text").innerHTML = `Refreshed<br><span id="pulse-group">${d} ${mo} ${y}<br>${h}:${min}${ampm}</span>`;
   }
 
   function showPage(n) {
@@ -499,47 +402,25 @@
     window.scrollTo(0, 0);
   }
 
-  // Calculate clip offset once the new page2 image loads
-  // The image has a "Favourites" header + carousel placeholder baked in at the top.
-  // We measure its natural height and clip the top ~38% which corresponds to that block.
-  // Adjust CLIP_FRACTION (0–1) if the seam is off.
-  const CLIP_FRACTION = 0.305; // ~30.5% of image height hidden
-  function applyClip() {
-    const img = document.getElementById("p2-bg-img");
-    const renderedW = img.offsetWidth;
-    if (!img.naturalWidth || !renderedW) return;
-    const scale       = renderedW / img.naturalWidth;
-    const renderedH   = img.naturalHeight * scale;
-    const clipPx      = renderedH * CLIP_FRACTION;
-    img.style.marginTop = `-${clipPx}px`;
-  }
-  document.getElementById("p2-bg-img").addEventListener("load", applyClip);
-  window.addEventListener("resize", applyClip);
-
   function init() {
     setRefreshText();
     const saved = localStorage.getItem("currentPage");
     showPage(saved ? parseInt(saved) : 2);
-    setFavSlide(1, false);
     setTimeout(() => { const pg = document.getElementById("pulse-group"); if (pg) pg.classList.add("pulse"); }, 10);
-    // Try applying clip immediately in case image is cached
-    setTimeout(applyClip, 50);
   }
 
   document.getElementById("header2").addEventListener("click", () => showPage(1));
+  document.getElementById("page2").addEventListener("click", () => showPage(1));
   window.addEventListener("load", init);
   window.addEventListener("resize", setOffsets);
 
-  // ── Global touch: pull-to-refresh ────────────────────────────────────────
   let startY = 0, isDragging = false;
   window.addEventListener("touchstart", e => {
     if (window.scrollY <= 5) { startY = e.touches[0].clientY; isDragging = true; spinner.classList.add("dragging"); }
   }, { passive: true });
 
   function getDragContent() {
-    return p1.classList.contains("active")
-      ? document.getElementById("p1-content")
-      : document.getElementById("p2-content");
+    return p1.classList.contains("active") ? document.getElementById("p1-content") : document.getElementById("p2-content");
   }
 
   window.addEventListener("touchmove", e => {
@@ -547,12 +428,12 @@
     const diffY = e.touches[0].clientY - startY;
     if (diffY > START_THRESHOLD) {
       const progress = Math.min((diffY - START_THRESHOLD) / (RELOAD_THRESHOLD - START_THRESHOLD), 1);
-      spinner.style.opacity   = progress;
+      spinner.style.opacity = progress;
       spinner.style.transform = `rotate(${progress * 90}deg)`;
       getDragContent().style.transition = "none";
-      getDragContent().style.transform  = `translateY(${progress * HOLD_OFFSET}px)`;
+      getDragContent().style.transform = `translateY(${progress * HOLD_OFFSET}px)`;
     } else {
-      spinner.style.opacity   = 0;
+      spinner.style.opacity = 0;
       spinner.style.transform = "rotate(0deg)";
       getDragContent().style.transform = "translateY(0)";
     }
@@ -565,20 +446,19 @@
     if (diffY >= RELOAD_THRESHOLD) {
       fakeRefresh();
     } else {
-      spinner.style.opacity   = 0;
+      spinner.style.opacity = 0;
       spinner.style.transform = "rotate(0deg)";
       const c = getDragContent();
       c.style.transition = "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)";
-      c.style.transform  = "translateY(0)";
+      c.style.transform = "translateY(0)";
       setTimeout(() => { c.style.transition = ""; }, 300);
     }
     isDragging = false;
   });
 
-  // ── Edge swipe right from page 1 → page 2 ───────────────────────────────
   let startX = 0;
   window.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, { passive: true });
-  window.addEventListener("touchend",   e => {
+  window.addEventListener("touchend", e => {
     const diffX = e.changedTouches[0].clientX - startX;
     if (p1.classList.contains("active") && startX < 50 && diffX > 80) showPage(2);
   });
