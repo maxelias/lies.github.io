@@ -72,7 +72,7 @@
   }
   #spinner.dragging { transition: none; }
   .bar {
-    position: absolute; width: 2.5px; height: 7.5px;
+    position: absolute; width: 3.75px; height: 9px;
     background: rgba(255,255,255,0.4);
     top: 0; left: 50%;
     transform-origin: center 14px; border-radius: 2px;
@@ -311,7 +311,7 @@
       spinner.classList.remove("spinning");
       spinner.style.transition = "opacity 0.4s";
       spinner.style.opacity = "0";
-      setTimeout(() => { spinner.style.transition = ""; spinner.style.transform = "rotate(0deg)"; activeContent.style.transition = ""; }, 400);
+      setTimeout(() => { spinner.style.transition = ""; spinner.style.transform = "rotate(0deg) scaleY(1)"; activeContent.style.transition = ""; }, 400);
     }, 750);
   }
   function setOffsets() {
@@ -371,16 +371,20 @@
   }
   window.addEventListener("touchmove", e => {
     if (!isDragging || spinner.classList.contains("spinning")) return;
+    /* Re-anchor the spinner to the current midpoint between header and gif every frame,
+       so it always sits centered in that gap while pulling — never drifts with the content. */
+    setOffsets();
     const diffY = e.touches[0].clientY - startY;
     if (diffY > START_THRESHOLD) {
       const progress = Math.min((diffY - START_THRESHOLD) / (RELOAD_THRESHOLD - START_THRESHOLD), 1);
+      const stretch = 1 + progress * 0.35;
       spinner.style.opacity = progress;
-      spinner.style.transform = `rotate(${progress * 90}deg)`;
+      spinner.style.transform = `rotate(${progress * 90}deg) scaleY(${stretch})`;
       getDragContent().style.transition = "none";
       getDragContent().style.transform = `translateY(${progress * HOLD_OFFSET}px)`;
     } else {
       spinner.style.opacity = 0;
-      spinner.style.transform = "rotate(0deg)";
+      spinner.style.transform = "rotate(0deg) scaleY(1)";
       getDragContent().style.transform = "translateY(0)";
     }
   }, { passive: true });
@@ -392,7 +396,7 @@
       fakeRefresh();
     } else {
       spinner.style.opacity = 0;
-      spinner.style.transform = "rotate(0deg)";
+      spinner.style.transform = "rotate(0deg) scaleY(1)";
       const c = getDragContent();
       c.style.transition = "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)";
       c.style.transform = "translateY(0)";
