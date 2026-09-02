@@ -24,6 +24,7 @@
   .page.active { display: block; }
   #page2 { background: #111111; }
   #page3 { background: #111111; }
+  #page4 { background: #111111; }
   #p1-top-bar { position: fixed; top: 0; left: 0; width: 100%; height: 10px; background: #111111; z-index: 1000; display: none; }
   .header-wrap { position: fixed; top: 0; left: 0; width: 100%; z-index: 999; background: #111111; }
   #h2-wrap { background: #111111; }
@@ -32,7 +33,7 @@
   #header1-left, #header1-right { flex: 1; height: 100%; cursor: pointer; }
   .footer-wrap { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 999; background: #111111; }
   .footer-wrap img { width: 100%; display: block; cursor: pointer; }
-  #footer-zones { position: absolute; inset: 0; display: flex; }
+  .footer-zones { position: absolute; inset: 0; display: flex; }
   .footer-zone { flex: 1; height: 100%; cursor: pointer; }
   .content { width: 100%; contain: layout paint style; }
   #p1-content { background: #111111; }
@@ -212,9 +213,17 @@
   .sp-menu-info { display: flex; gap: 6px; align-items: flex-start; color: #cfe4f5; font: 12px/1.4 -apple-system, Arial, sans-serif; background: rgba(46,82,153,0.16); border-radius: 6px; padding: 8px 10px; margin-top: 8px; }
   .sp-menu-arrow { color: #6b7280; font-size: 18px; margin-top: 6px; }
 
-  #wallet-placeholder { min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 0 30px; text-align: center; }
-  .wallet-ph-text { color: #a8b0b8; font: 600 15px/1.6 -apple-system, "SF Pro Display", Arial, sans-serif; }
-  .wallet-ph-text span { display: block; font-weight: 400; font-size: 12px; margin-top: 8px; color: #6b7280; }
+  .slide-placeholder { min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 0 30px; text-align: center; }
+  .slide-ph-text { color: #a8b0b8; font: 600 15px/1.6 -apple-system, "SF Pro Display", Arial, sans-serif; }
+  .slide-ph-text span { display: block; font-weight: 400; font-size: 12px; margin-top: 8px; color: #6b7280; }
+
+  #page3-media-wrap { position: relative; width: 100%; }
+  .page3-main { width: 100%; display: block; }
+
+  #page4-media-wrap { position: relative; width: 100%; }
+  .page4-main { width: 100%; display: block; }
+  /* Adjust top/height so these three zones sit over the footer baked into d.PNG */
+  #p4-footer-zones { position: absolute; top: 92%; left: 0; width: 100%; height: 8%; display: flex; }
 </style>
 </head>
 <body>
@@ -231,6 +240,9 @@
 </div>
 <div class="header-wrap" id="h2-wrap" style="display:none">
   <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Page2header.png" id="header2">
+</div>
+<div class="header-wrap" id="h3-wrap" style="display:none">
+  <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design%20(3).jpg" id="header3">
 </div>
 <div id="spinner">
   <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
@@ -272,20 +284,42 @@
 
     </div>
   </div>
-</div>
-<div id="page3" class="page">
-  <div class="content" id="p3-content">
-    <div id="wallet-placeholder">
-      <div class="wallet-ph-text">Wallet screen<br><span>Replace #wallet-placeholder with your embedded image</span></div>
+  <div class="footer-wrap" id="f-wrap">
+    <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2footer.png" id="footer2">
+    <div class="footer-zones">
+      <div class="footer-zone" data-page="2"></div>
+      <div class="footer-zone" data-page="3"></div>
+      <div class="footer-zone" data-page="4"></div>
     </div>
   </div>
 </div>
-<div class="footer-wrap" id="f-wrap">
-  <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2footer.png" id="footer2">
-  <div id="footer-zones">
-    <div class="footer-zone" data-page="1"></div>
-    <div class="footer-zone" data-page="2"></div>
-    <div class="footer-zone" data-page="3"></div>
+<div id="page3" class="page">
+  <div class="content" id="p3-content">
+    <div id="page3-media-wrap">
+      <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design12.jpg" alt="Services" class="page3-main">
+    </div>
+  </div>
+  <div class="footer-wrap" id="f3-wrap">
+    <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design%20(1).jpg" id="footer3">
+    <div class="footer-zones">
+      <div class="footer-zone" data-page="2"></div>
+      <div class="footer-zone" data-page="3"></div>
+      <div class="footer-zone" data-page="4"></div>
+    </div>
+  </div>
+</div>
+<div id="page4" class="page">
+  <div class="content" id="p4-content">
+    <div id="page4-media-wrap">
+      <img src="https://file.garden/aeSpG6iUoRzyQ8ca/d.PNG" alt="Wallet" class="page4-main">
+      <!-- Footer is baked into this image; tap zones below sit over its bottom third.
+           Nudge #p4-footer-zones's top/height in the CSS if they don't line up. -->
+      <div id="p4-footer-zones">
+        <div class="footer-zone" data-page="2"></div>
+        <div class="footer-zone" data-page="3"></div>
+        <div class="footer-zone" data-page="4"></div>
+      </div>
+    </div>
   </div>
 </div>
 <div id="popup-overlay"></div>
@@ -324,9 +358,12 @@
   const p1 = document.getElementById("page1");
   const p2 = document.getElementById("page2");
   const p3 = document.getElementById("page3");
+  const p4 = document.getElementById("page4");
   const h1wrap = document.getElementById("h1-wrap");
   const h2wrap = document.getElementById("h2-wrap");
+  const h3wrap = document.getElementById("h3-wrap");
   const f2wrap = document.getElementById("f-wrap");
+  const f3wrap = document.getElementById("f3-wrap");
   const p1TopBar = document.getElementById("p1-top-bar");
   const spinner = document.getElementById("spinner");
   const html = document.documentElement;
@@ -435,19 +472,32 @@
       setTimeout(() => { spinner.style.transition = ""; spinner.style.transform = "rotate(0deg)"; activeContent.style.transition = ""; }, 400);
     }, 750);
   }
+  function currentPageNum() {
+    if (p1.classList.contains("active")) return 1;
+    if (p2.classList.contains("active")) return 2;
+    if (p3.classList.contains("active")) return 3;
+    return 4;
+  }
   function setOffsets() {
-    const isP1 = p1.classList.contains("active");
-    const topOff = isP1 ? 10 : 0;
-    const hHeight = (isP1 ? h1wrap.offsetHeight : h2wrap.offsetHeight) + topOff;
-    const fHeight = f2wrap.offsetHeight || 60;
-    document.getElementById("p1-content").style.paddingTop = hHeight + "px";
-    document.getElementById("p1-content").style.paddingBottom = fHeight + "px";
-    document.getElementById("p2-content").style.paddingTop = (hHeight + 40) + "px";
-    document.getElementById("p2-content").style.paddingBottom = fHeight + "px";
-    document.getElementById("p3-content").style.paddingTop = (hHeight + 40) + "px";
-    document.getElementById("p3-content").style.paddingBottom = fHeight + "px";
+    const n = currentPageNum();
+    const header = n === 1 ? h1wrap : n === 2 ? h2wrap : n === 3 ? h3wrap : null;
+    const topOff = n === 1 ? 10 : 0;
+    const hHeight = (header ? header.offsetHeight : 0) + topOff;
+    if (n === 1) {
+      document.getElementById("p1-content").style.paddingTop = hHeight + "px";
+      document.getElementById("p1-content").style.paddingBottom = "0px";
+    } else if (n === 2) {
+      const fHeight = f2wrap.offsetHeight || 60;
+      document.getElementById("p2-content").style.paddingTop = (hHeight + 40) + "px";
+      document.getElementById("p2-content").style.paddingBottom = fHeight + "px";
+    } else if (n === 3) {
+      const fHeight = f3wrap.offsetHeight || 60;
+      document.getElementById("p3-content").style.paddingTop = (hHeight + 40) + "px";
+      document.getElementById("p3-content").style.paddingBottom = fHeight + "px";
+    }
+    // page 4 is a single self-contained image (header + footer baked in) — no padding needed
     spinner.style.top = (hHeight + SPINNER_GAP - (spinner.offsetHeight / 2)) + "px";
-    html.style.background = isP1 ? "#111111" : "rgb(0, 37, 100)";
+    html.style.background = n === 1 ? "#111111" : "rgb(0, 37, 100)";
   }
   function setRefreshText() {
     const now = new Date();
@@ -463,15 +513,16 @@
     p1.classList.toggle("active", n === 1);
     p2.classList.toggle("active", n === 2);
     p3.classList.toggle("active", n === 3);
-    if (n === 1) {
-      h1wrap.style.display = "block"; h1wrap.style.top = "10px";
-      h2wrap.style.display = "none";
-      p1TopBar.style.display = "block";
-    } else {
-      h1wrap.style.display = "none";
-      h2wrap.style.display = "block"; h2wrap.style.top = "0px";
-      p1TopBar.style.display = "none";
-    }
+    p4.classList.toggle("active", n === 4);
+
+    h1wrap.style.display = n === 1 ? "block" : "none";
+    h2wrap.style.display = n === 2 ? "block" : "none";
+    h3wrap.style.display = n === 3 ? "block" : "none";
+    if (n === 1) { h1wrap.style.top = "10px"; }
+    if (n === 2) { h2wrap.style.top = "0px"; }
+    if (n === 3) { h3wrap.style.top = "0px"; }
+    p1TopBar.style.display = n === 1 ? "block" : "none";
+
     localStorage.setItem("currentPage", n);
     setOffsets();
     window.scrollTo(0, 0);
@@ -489,7 +540,7 @@
       z.addEventListener('touchend', e => { e.preventDefault(); showPage(parseInt(z.dataset.page)); }, { passive: false });
     });
   }
-  document.getElementById("header2").addEventListener("click", () => showPage(1));
+  document.getElementById("header2").addEventListener("click", () => showPage(2));
   window.addEventListener("load", init);
   window.addEventListener("resize", setOffsets);
 
