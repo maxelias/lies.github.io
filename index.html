@@ -170,8 +170,12 @@
     max-height: 32vh; overflow-y: auto; display: none;
   }
   #hotspot-readout.show { display: block; }
+  #hotspot-readout.collapsed { max-height: none; overflow: visible; padding: 0; }
   #hotspot-readout .row { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
-  #hotspot-copy-btn { position: sticky; top: 0; width: 100%; background: #e6007e; color: #fff; border: none; border-radius: 6px; padding: 9px; font: 700 12px -apple-system, Arial, sans-serif; margin-bottom: 6px; }
+  #hotspot-readout-bar { display: flex; gap: 8px; }
+  #hotspot-copy-btn, #hotspot-collapse-btn { border: none; border-radius: 6px; font: 700 12px -apple-system, Arial, sans-serif; padding: 9px; cursor: pointer; }
+  #hotspot-copy-btn { flex: 1; background: #e6007e; color: #fff; }
+  #hotspot-collapse-btn { background: rgba(255,255,255,0.15); color: #fff; padding: 9px 12px; white-space: nowrap; }
 
   /* ══════════ Generic sub-pages ══════════ */
   .subpage {
@@ -477,7 +481,6 @@
     updateReadout();
   }
   document.getElementById("header2").addEventListener("click", () => showPage(1));
-  document.getElementById("page2").addEventListener("click", () => showPage(1));
   window.addEventListener("load", init);
   window.addEventListener("resize", setOffsets);
 
@@ -535,6 +538,7 @@
     const N = cards.length;
     let index = 0;
     let cardWidth = 0;
+    let didDrag = false;
     let cStartX = 0, cCurrentX = 0, cDragging = false, baseOffset = 0;
 
     function measure() {
@@ -566,6 +570,7 @@
     track.addEventListener("touchstart", e => {
       measure();
       cDragging = true;
+      didDrag = false;
       cStartX = e.touches[0].clientX;
       baseOffset = centerOffset() - index * cardWidth;
       track.style.transition = "none";
@@ -576,6 +581,7 @@
       if (!cDragging) return;
       cCurrentX = e.touches[0].clientX;
       const diff = cCurrentX - cStartX;
+      if (Math.abs(diff) > 8) didDrag = true;
       track.style.transform = `translateX(${baseOffset + diff}px)`;
       updateDots(index - diff / cardWidth);
       e.stopPropagation();
@@ -596,6 +602,25 @@
     window.addEventListener("resize", () => { measure(); goTo(index, false); });
     measure();
     goTo(0, false);
+
+    // Only the SECOND card opens page 1, and only while it's the active/centred one
+    const secondCard = cards[1];
+    if (secondCard) {
+      secondCard.style.cursor = "pointer";
+      secondCard.addEventListener("click", e => {
+        if (didDrag) return;
+        if (index !== 1) return;
+        e.stopPropagation();
+        showPage(1);
+      });
+      secondCard.addEventListener("touchend", e => {
+        if (didDrag) return;
+        if (index !== 1) return;
+        e.preventDefault();
+        e.stopPropagation();
+        showPage(1);
+      }, { passive: false });
+    }
   }
 
   /* ══════════════ Hotspot link editor ══════════════ */
@@ -628,6 +653,7 @@
   };
 
   let editMode = true;
+  let readoutCollapsed = false;
   let hotspotLayer, readoutEl;
 
   function buildHotspotLayer() {
@@ -722,11 +748,21 @@
 
   function updateReadout() {
     if (!readoutEl) return;
-    const rows = HOTSPOTS.map(h =>
+    readoutEl.classList.toggle('collapsed', readoutCollapsed);
+    const rows = readoutCollapsed ? '' : HOTSPOTS.map(h =>
       `<div class="row"><span>${h.label}</span><span>top:${h.top.toFixed(1)}% left:${h.left.toFixed(1)}% w:${h.width.toFixed(1)}% h:${h.height.toFixed(1)}%</span></div>`
     ).join('');
-    readoutEl.innerHTML = `<button id="hotspot-copy-btn">Copy config</button>${rows}`;
+    readoutEl.innerHTML = `
+      <div id="hotspot-readout-bar">
+        <button id="hotspot-copy-btn">Copy config</button>
+        <button id="hotspot-collapse-btn">${readoutCollapsed ? 'Show list \u25B2' : 'Hide list \u25BC'}</button>
+      </div>
+      ${rows}`;
     document.getElementById('hotspot-copy-btn').addEventListener('click', copyConfig);
+    document.getElementById('hotspot-collapse-btn').addEventListener('click', () => {
+      readoutCollapsed = !readoutCollapsed;
+      updateReadout();
+    });
   }
 
   function copyConfig() {
