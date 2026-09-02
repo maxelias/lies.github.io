@@ -7,6 +7,9 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc; img-src 'self' data: https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc; media-src 'self' https://file.garden blob:; connect-src 'self'; script-src 'self' 'unsafe-inline';">
 <link rel="icon" href="https://play-lh.googleusercontent.com/uulKLexOFnvrpg5ltH3jBAnCbMMed6VbaogVr9etutmFXO-P5w0JRa7sgJ1EstibjtI=w240-h480-rw" type="image/png">
 <link rel="apple-touch-icon" href="https://file.garden/aeSpG6iUoRzyQ8ca/Screenshot%202026-04-28%20at%204.53.50%E2%80%AFpm.png">
+<link rel="preconnect" href="https://file.garden">
+<link rel="preconnect" href="https://i.postimg.cc">
+<link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design.gif" fetchpriority="high">
 <link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,6 +22,14 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { height: 100%; background-color: #111111; }
+  #intro-splash {
+    position: fixed; inset: 0; z-index: 99999;
+    background: #111111;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.4s ease;
+  }
+  #intro-splash.fade-out { opacity: 0; pointer-events: none; }
+  #intro-gif { width: 100%; height: 100%; object-fit: cover; display: block; }
   /* ══════════ Orientation lock (portrait only) ══════════ */
   /* screen.orientation.lock() is unsupported in iOS Safari/home-screen apps and
      only works in fullscreen on Android, so this CSS rotation trick is the
@@ -250,6 +261,16 @@
 </style>
 </head>
 <body>
+<div id="intro-splash">
+  <img
+    id="intro-gif"
+    src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design.gif"
+    alt=""
+    fetchpriority="high"
+    decoding="async"
+    loading="eager"
+  >
+</div>
 <div id="privacy-cover">
   <img src="https://www.image2url.com/r2/default/images/1787920494762-547907e5-f90d-4695-9664-d39198e8d54e.png" alt="">
 </div>
@@ -556,8 +577,7 @@
   }
   function init() {
     setRefreshText();
-    const saved = localStorage.getItem("currentPage");
-    showPage(saved ? parseInt(saved) : 2);
+    showPage(2); // always opens on Home after the intro
     setTimeout(() => { const pg = document.getElementById("pulse-group"); if (pg) pg.classList.add("pulse"); }, 10);
     initCarousel();
     buildHotspotLayer();
@@ -570,6 +590,17 @@
     if (p5Back) {
       p5Back.addEventListener('click', () => showPage(2));
       p5Back.addEventListener('touchend', e => { e.preventDefault(); showPage(2); }, { passive: false });
+    }
+    initSwipeBack();
+
+    // Intro splash: shows immediately (it's the first thing in the DOM/preloaded
+    // with highest priority), then fades to reveal the app already sitting on Home.
+    const introSplash = document.getElementById("intro-splash");
+    if (introSplash) {
+      setTimeout(() => {
+        introSplash.classList.add("fade-out");
+        setTimeout(() => { introSplash.style.display = "none"; }, 450);
+      }, 2400);
     }
   }
   document.getElementById("header2").addEventListener("click", () => showPage(2));
@@ -619,12 +650,88 @@
     }
     isDragging = false;
   });
-  let startX = 0;
-  window.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, { passive: true });
-  window.addEventListener("touchend", e => {
-    const diffX = e.changedTouches[0].clientX - startX;
-    if (p1.classList.contains("active") && startX < 50 && diffX > 80) showPage(2);
-  });
+  function initSwipeBack() {
+    const EDGE = 40;             // must start within this many px of the left edge
+    const COMPLETE_RATIO = 0.35; // drag past this fraction of screen width to complete
+    const DUR = "0.28s cubic-bezier(0.22, 1, 0.36, 1)";
+    let dragging = false, startX = 0, currentX = 0, vw = 0;
+
+    function onStart(e) {
+      if (!p1.classList.contains("active")) return;
+      const t = e.touches[0];
+      if (t.clientX > EDGE) return;
+      dragging = true;
+      startX = t.clientX;
+      currentX = 0;
+      vw = window.innerWidth;
+
+      // Bring Home's header/footer/content in as a live layer sliding from the left
+      p2.style.display = "block";
+      p2.style.position = "fixed";
+      p2.style.top = "0"; p2.style.left = "0"; p2.style.width = "100%";
+      p2.style.zIndex = "900";
+      p2.style.transition = "none";
+      p2.style.transform = "translateX(-100%)";
+
+      h2wrap.style.display = "block";
+      h2wrap.style.top = "0px";
+      h2wrap.style.zIndex = "901";
+      h2wrap.style.transition = "none";
+      h2wrap.style.transform = "translateX(-100%)";
+
+      f2wrap.style.display = "block";
+      f2wrap.style.zIndex = "901";
+      f2wrap.style.transition = "none";
+      f2wrap.style.transform = "translateX(-100%)";
+
+      p1.style.position = "relative";
+      p1.style.zIndex = "950";
+      p1.style.transition = "none";
+      h1wrap.style.zIndex = "951";
+      h1wrap.style.transition = "none";
+      p1TopBar.style.zIndex = "951";
+      p1TopBar.style.transition = "none";
+    }
+    function onMove(e) {
+      if (!dragging) return;
+      const t = e.touches[0];
+      currentX = Math.max(0, t.clientX - startX);
+      const px = `${currentX}px`;
+      p1.style.transform = `translateX(${px})`;
+      h1wrap.style.transform = `translateX(${px})`;
+      p1TopBar.style.transform = `translateX(${px})`;
+      p2.style.transform = `translateX(calc(-100% + ${px}))`;
+      h2wrap.style.transform = `translateX(calc(-100% + ${px}))`;
+      f2wrap.style.transform = `translateX(calc(-100% + ${px}))`;
+    }
+    function onEnd() {
+      if (!dragging) return;
+      dragging = false;
+      const complete = currentX > vw * COMPLETE_RATIO;
+      [p1, h1wrap, p1TopBar, p2, h2wrap, f2wrap].forEach(el => { el.style.transition = `transform ${DUR}`; });
+      const outX = complete ? `${vw}px` : "0px";
+      const inX = complete ? "translateX(0)" : "translateX(-100%)";
+      p1.style.transform = `translateX(${outX})`;
+      h1wrap.style.transform = `translateX(${outX})`;
+      p1TopBar.style.transform = `translateX(${outX})`;
+      p2.style.transform = inX;
+      h2wrap.style.transform = inX;
+      f2wrap.style.transform = inX;
+
+      setTimeout(() => {
+        [p1, h1wrap, p1TopBar, p2, h2wrap, f2wrap].forEach(el => {
+          el.style.position = ""; el.style.top = ""; el.style.left = ""; el.style.width = "";
+          el.style.zIndex = ""; el.style.transition = ""; el.style.transform = "";
+        });
+        if (complete) { showPage(2); }
+        else { p2.style.display = "none"; h2wrap.style.display = "none"; f2wrap.style.display = "none"; }
+      }, 300);
+    }
+
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("touchend", onEnd);
+  }
 
   function initCarousel() {
     const carousel = document.getElementById("fav-carousel");
@@ -647,7 +754,7 @@
       return (carousel.clientWidth - cardWidth) / 2;
     }
     function setTransform(px, animate) {
-      track.style.transition = animate ? "transform 0.32s cubic-bezier(0.32,0.72,0,1)" : "none";
+      track.style.transition = animate ? "transform 0.26s cubic-bezier(0.22, 1, 0.36, 1)" : "none";
       track.style.transform = `translateX(${px}px)`;
     }
     function goTo(i, animate = true) {
@@ -667,35 +774,51 @@
     function updateScale(progressIndex, animate) {
       const active = progressIndex !== undefined ? progressIndex : index;
       cards.forEach((card, i) => {
-        card.style.transition = animate ? "transform 0.32s cubic-bezier(0.32,0.72,0,1)" : "none";
+        card.style.transition = animate ? "transform 0.26s cubic-bezier(0.22, 1, 0.36, 1)" : "none";
         const dist = Math.min(Math.abs(active - i), 1);
         const scale = 1 - dist * 0.2; // 100% centered, 80% when fully off to a side
         card.style.transform = `scale(${scale})`;
       });
     }
 
+    let lastMoveX = 0, lastMoveT = 0, velocity = 0, rafPending = false, pendingDiff = 0;
+
     track.addEventListener("touchstart", e => {
       measure();
       cDragging = true;
       didDrag = false;
       cStartX = e.touches[0].clientX;
+      lastMoveX = cStartX;
+      lastMoveT = performance.now();
+      velocity = 0;
       baseOffset = centerOffset() - index * cardWidth;
       track.style.transition = "none";
       cards.forEach(c => { c.style.transition = "none"; });
       e.stopPropagation();
     }, { passive: true });
 
+    function applyDrag(diff) {
+      rafPending = false;
+      track.style.transform = `translateX(${baseOffset + diff}px)`;
+      updateDots(index - diff / cardWidth);
+      updateScale(index - diff / cardWidth, false);
+    }
+
     track.addEventListener("touchmove", e => {
       if (!cDragging) return;
       cCurrentX = e.touches[0].clientX;
+      const now = performance.now();
+      const dt = now - lastMoveT;
+      if (dt > 0) velocity = (cCurrentX - lastMoveX) / dt; // px per ms
+      lastMoveX = cCurrentX; lastMoveT = now;
+
       const diff = cCurrentX - cStartX;
       if (Math.abs(diff) > 8) {
         if (!didDrag) { cards.forEach(c => c.classList.remove("pressed")); }
         didDrag = true;
       }
-      track.style.transform = `translateX(${baseOffset + diff}px)`;
-      updateDots(index - diff / cardWidth);
-      updateScale(index - diff / cardWidth, false);
+      pendingDiff = diff;
+      if (!rafPending) { rafPending = true; requestAnimationFrame(() => applyDrag(pendingDiff)); }
       e.stopPropagation();
     }, { passive: true });
 
@@ -703,10 +826,18 @@
       if (!cDragging) return;
       cDragging = false;
       const diff = cCurrentX - cStartX;
-      const threshold = cardWidth * 0.2;
-      if (diff <= -threshold) goTo(index + 1);
-      else if (diff >= threshold) goTo(index - 1);
-      else goTo(index);
+      const FLICK_VELOCITY = 0.35; // px/ms — a quick flick snaps even on a small drag
+      const distanceThreshold = cardWidth * 0.2;
+      if (Math.abs(velocity) > FLICK_VELOCITY) {
+        if (velocity < 0) goTo(index + 1);
+        else goTo(index - 1);
+      } else if (diff <= -distanceThreshold) {
+        goTo(index + 1);
+      } else if (diff >= distanceThreshold) {
+        goTo(index - 1);
+      } else {
+        goTo(index);
+      }
       cCurrentX = cStartX;
       e.stopPropagation();
     });
