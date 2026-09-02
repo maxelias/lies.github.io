@@ -19,6 +19,23 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { height: 100%; background-color: #111111; }
+  /* ══════════ Orientation lock (portrait only) ══════════ */
+  /* screen.orientation.lock() is unsupported in iOS Safari/home-screen apps and
+     only works in fullscreen on Android, so this CSS rotation trick is the
+     reliable cross-platform fallback: when the device is turned to landscape,
+     the whole page is rotated back so it still reads as portrait. */
+  @media screen and (orientation: landscape) {
+    html {
+      transform: rotate(-90deg);
+      transform-origin: left top;
+      width: 100vh;
+      height: 100vw;
+      overflow-x: hidden;
+      position: absolute;
+      top: 100%;
+      left: 0;
+    }
+  }
   body { background: transparent; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
   .page { display: none; width: 100vw; min-height: 100vh; }
   .page.active { display: block; }
@@ -557,6 +574,11 @@
   }
   document.getElementById("header2").addEventListener("click", () => showPage(2));
   window.addEventListener("load", init);
+  // Native lock where the browser allows it (installed/fullscreen Android PWAs).
+  // No-op elsewhere — the CSS rotation trick above covers the rest.
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock("portrait").catch(() => {});
+  }
   window.addEventListener("resize", setOffsets);
 
   let startY = 0, isDragging = false;
