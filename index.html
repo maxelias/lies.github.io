@@ -35,6 +35,10 @@
   .footer-wrap img { width: 100%; display: block; cursor: pointer; }
   .footer-zones { position: absolute; inset: 0; display: flex; }
   .footer-zone { flex: 1; height: 100%; cursor: pointer; }
+  /* Sits above page 3's old footer to visually cover it. pointer-events:none so
+     taps still reach the .footer-zone thirds underneath in #f3-wrap. */
+  #f3-cover { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; pointer-events: none; }
+  #f3-cover img { width: 100%; display: block; }
   .content { width: 100%; contain: layout paint style; }
   #p1-content { background: #111111; }
   #p2-content { background: #111111; }
@@ -222,8 +226,9 @@
 
   #page4-media-wrap { position: relative; width: 100%; }
   .page4-main { width: 100%; display: block; }
-  /* Adjust top/height so these three zones sit over the footer baked into d.PNG */
-  #p4-footer-zones { position: absolute; top: 92%; left: 0; width: 100%; height: 8%; display: flex; }
+  /* Pinned exactly like the other footers (same fixed bottom position, height set
+     from JS to match f2wrap/f3wrap so it lines up identically switching pages) */
+  #p4-footer-zones { position: fixed; left: 0; right: 0; bottom: 0; display: flex; z-index: 999; }
 </style>
 </head>
 <body>
@@ -306,6 +311,9 @@
       <div class="footer-zone" data-page="3"></div>
       <div class="footer-zone" data-page="4"></div>
     </div>
+  </div>
+  <div id="f3-cover">
+    <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design%20(5).jpg" alt="">
   </div>
 </div>
 <div id="page4" class="page">
@@ -496,6 +504,8 @@
       document.getElementById("p3-content").style.paddingBottom = fHeight + "px";
     }
     // page 4 is a single self-contained image (header + footer baked in) — no padding needed
+    const p4zones = document.getElementById("p4-footer-zones");
+    if (p4zones) p4zones.style.height = (f2wrap.offsetHeight || 60) + "px";
     spinner.style.top = (hHeight + SPINNER_GAP - (spinner.offsetHeight / 2)) + "px";
     html.style.background = n === 1 ? "#111111" : "rgb(0, 37, 100)";
   }
