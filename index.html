@@ -35,10 +35,6 @@
   .footer-wrap img { width: 100%; display: block; cursor: pointer; }
   .footer-zones { position: absolute; inset: 0; display: flex; }
   .footer-zone { flex: 1; height: 100%; cursor: pointer; }
-  /* Sits above page 3's old footer to visually cover it. pointer-events:none so
-     taps still reach the .footer-zone thirds underneath in #f3-wrap. */
-  #f3-cover { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; pointer-events: none; }
-  #f3-cover img { width: 100%; display: block; }
   .content { width: 100%; contain: layout paint style; }
   #p1-content { background: #111111; }
   #p2-content { background: #111111; }
@@ -226,9 +222,6 @@
 
   #page4-media-wrap { position: relative; width: 100%; }
   .page4-main { width: 100%; display: block; }
-  /* Pinned exactly like the other footers (same fixed bottom position, height set
-     from JS to match f2wrap/f3wrap so it lines up identically switching pages) */
-  #p4-footer-zones { position: fixed; left: 0; right: 0; bottom: 0; display: flex; z-index: 999; }
 </style>
 </head>
 <body>
@@ -289,14 +282,6 @@
 
     </div>
   </div>
-  <div class="footer-wrap" id="f-wrap">
-    <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2footer.png" id="footer2">
-    <div class="footer-zones">
-      <div class="footer-zone" data-page="2"></div>
-      <div class="footer-zone" data-page="3"></div>
-      <div class="footer-zone" data-page="4"></div>
-    </div>
-  </div>
 </div>
 <div id="page3" class="page">
   <div class="content" id="p3-content">
@@ -304,30 +289,20 @@
       <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design12.jpg" alt="Services" class="page3-main">
     </div>
   </div>
-  <div class="footer-wrap" id="f3-wrap">
-    <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design%20(1).jpg" id="footer3">
-    <div class="footer-zones">
-      <div class="footer-zone" data-page="2"></div>
-      <div class="footer-zone" data-page="3"></div>
-      <div class="footer-zone" data-page="4"></div>
-    </div>
-  </div>
-  <div id="f3-cover">
-    <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design%20(5).jpg" alt="">
-  </div>
 </div>
 <div id="page4" class="page">
   <div class="content" id="p4-content">
     <div id="page4-media-wrap">
       <img src="https://file.garden/aeSpG6iUoRzyQ8ca/d.PNG" alt="Wallet" class="page4-main">
-      <!-- Footer is baked into this image; tap zones below sit over its bottom third.
-           Nudge #p4-footer-zones's top/height in the CSS if they don't line up. -->
-      <div id="p4-footer-zones">
-        <div class="footer-zone" data-page="2"></div>
-        <div class="footer-zone" data-page="3"></div>
-        <div class="footer-zone" data-page="4"></div>
-      </div>
     </div>
+  </div>
+</div>
+<div class="footer-wrap" id="f-wrap">
+  <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2footer.png" id="footer2">
+  <div class="footer-zones">
+    <div class="footer-zone" data-page="2"></div>
+    <div class="footer-zone" data-page="3"></div>
+    <div class="footer-zone" data-page="4"></div>
   </div>
 </div>
 <div id="popup-overlay"></div>
@@ -371,7 +346,6 @@
   const h2wrap = document.getElementById("h2-wrap");
   const h3wrap = document.getElementById("h3-wrap");
   const f2wrap = document.getElementById("f-wrap");
-  const f3wrap = document.getElementById("f3-wrap");
   const p1TopBar = document.getElementById("p1-top-bar");
   const spinner = document.getElementById("spinner");
   const html = document.documentElement;
@@ -491,21 +465,20 @@
     const header = n === 1 ? h1wrap : n === 2 ? h2wrap : n === 3 ? h3wrap : null;
     const topOff = n === 1 ? 10 : 0;
     const hHeight = (header ? header.offsetHeight : 0) + topOff;
+    const fHeight = f2wrap.offsetHeight || 60;
     if (n === 1) {
       document.getElementById("p1-content").style.paddingTop = hHeight + "px";
       document.getElementById("p1-content").style.paddingBottom = "0px";
     } else if (n === 2) {
-      const fHeight = f2wrap.offsetHeight || 60;
       document.getElementById("p2-content").style.paddingTop = (hHeight + 40) + "px";
       document.getElementById("p2-content").style.paddingBottom = fHeight + "px";
     } else if (n === 3) {
-      const fHeight = f3wrap.offsetHeight || 60;
       document.getElementById("p3-content").style.paddingTop = (hHeight + 40) + "px";
       document.getElementById("p3-content").style.paddingBottom = fHeight + "px";
+    } else if (n === 4) {
+      document.getElementById("p4-content").style.paddingTop = "0px";
+      document.getElementById("p4-content").style.paddingBottom = fHeight + "px";
     }
-    // page 4 is a single self-contained image (header + footer baked in) — no padding needed
-    const p4zones = document.getElementById("p4-footer-zones");
-    if (p4zones) p4zones.style.height = (f2wrap.offsetHeight || 60) + "px";
     spinner.style.top = (hHeight + SPINNER_GAP - (spinner.offsetHeight / 2)) + "px";
     html.style.background = n === 1 ? "#111111" : "rgb(0, 37, 100)";
   }
@@ -532,6 +505,7 @@
     if (n === 2) { h2wrap.style.top = "0px"; }
     if (n === 3) { h3wrap.style.top = "0px"; }
     p1TopBar.style.display = n === 1 ? "block" : "none";
+    f2wrap.style.display = n === 1 ? "none" : "block";
 
     localStorage.setItem("currentPage", n);
     setOffsets();
