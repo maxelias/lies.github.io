@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>App Title</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc; img-src 'self' data: https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc; media-src 'self' https://file.garden;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc; img-src 'self' data: https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc; media-src 'self' https://file.garden blob:; connect-src 'self'; script-src 'self' 'unsafe-inline';">
 <link rel="icon" href="https://play-lh.googleusercontent.com/uulKLexOFnvrpg5ltH3jBAnCbMMed6VbaogVr9etutmFXO-P5w0JRa7sgJ1EstibjtI=w240-h480-rw" type="image/png">
 <link rel="apple-touch-icon" href="https://file.garden/aeSpG6iUoRzyQ8ca/Screenshot%202026-04-28%20at%204.53.50%E2%80%AFpm.png">
 <link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif">
@@ -31,9 +31,7 @@
   #p2-content { background: #111111; }
   .main-gif { width: 100%; display: block; }
   #gif-wrapper { position: relative; display: block; width: 100%; background: #111111; }
-  /* Brightened GIF */
   #main-gif { width: 100%; display: block; filter: brightness(1.18); will-change: transform; }
-  /* Tap zones */
   #licence-tap-left, #licence-tap-right {
     position: absolute;
     top: 53.5%;
@@ -44,7 +42,6 @@
   }
   #licence-tap-left  { left: 0; }
   #licence-tap-right { left: 50%; }
-  /* Refresh text */
   #refresh-text {
     position: absolute; top: 45px; right: 7.5px;
     text-align: right;
@@ -60,7 +57,6 @@
     100% { transform: scale(1);   }
   }
   #pulse-group.pulse { animation: textPulse 0.5s cubic-bezier(0.45, 0, 0.55, 1) forwards; }
-  /* Spinner */
   #spinner {
     position: fixed; left: 50%;
     width: 28px; height: 28px; margin-left: -14px;
@@ -87,13 +83,11 @@
   .bar:nth-child(8) { transform: rotate(315deg); }
   @keyframes rotateCircle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .spinning { animation: rotateCircle 1.2s linear infinite !important; opacity: 1 !important; transition: none !important; }
-  /* Bottom sheet popup */
   #popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 2000; display: none; transition: background 0.38s ease; }
   #popup-overlay.open { background: rgba(0,0,0,0.6); }
   #popup-sheet { position: fixed; bottom: 0; left: 0; width: 100%; max-height: 90vh; z-index: 2001; transform: translateY(100%); transition: transform 0.42s cubic-bezier(0.32, 0.72, 0, 1); border-radius: 18px 18px 0 0; overflow: hidden; background: #1a1a1a; will-change: transform; }
   #popup-sheet.open { transform: translateY(0); }
   #popup-sheet img { width: 100%; height: auto; display: block; }
-  /* Privacy cover — shown when app is backgrounded */
   #privacy-cover {
     position: fixed;
     inset: 0;
@@ -107,7 +101,6 @@
     object-fit: cover;
     display: block;
   }
-  /* Shared modal styles */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 3000; display: none; align-items: center; justify-content: center; transition: background 0.3s ease; padding: 10px; }
   .modal-overlay.open { display: flex; background: rgba(0,0,0,0.65); }
   .modal-box { background: #373b3e; border-radius: 6px; width: 100%; max-width: 100%; max-height: 92vh; overflow: hidden; transform: scale(0.92) translateY(12px); opacity: 0; transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease; display: flex; flex-direction: column; }
@@ -124,16 +117,11 @@
   .licence-field-value:last-child { margin-bottom: 0; }
   #conditions-body img { width: 100%; height: auto; display: block; border-radius: 4px; }
 
-  /* ── Page2 image + overlaid carousel ── */
-  /* page2-wrapper is a normal (non-fixed) block that scrolls with the page.
-     The carousel is absolutely positioned within it at a fixed distance from
-     the top of the image, so as the user scrolls, the carousel moves in lock-step
-     with that spot on the image — it never "floats" independently. */
   #page2-media-wrap { position: relative; width: 100%; }
   .page2-main { width: 100%; display: block; }
   #fav-carousel {
     position: absolute;
-    top: 3.9%; /* adjust to sit over whatever part of the image you want */
+    top: 3.9%;
     left: 0;
     width: 100%;
     overflow: hidden;
@@ -144,13 +132,98 @@
   .fav-card img { width: 100%; display: block; pointer-events: none; }
   #fav-dots { display: flex; justify-content: center; gap: 8px; margin: 12px 0 0; }
   .fav-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.35); transition: background 0.2s; }
+
+  /* ══════════ Hotspot link editor ══════════ */
+  #hotspot-toggle-btn, #hotspot-add-btn {
+    position: fixed; top: 14px; z-index: 4000;
+    border: none; border-radius: 8px; padding: 9px 13px;
+    font: 600 12px -apple-system, "SF Pro Text", Arial, sans-serif;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  #hotspot-toggle-btn { right: 14px; background: rgba(20,20,20,0.88); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+  #hotspot-add-btn { right: 140px; background: rgba(230,0,126,0.9); color: #fff; }
+  #hotspot-layer { position: absolute; inset: 0; z-index: 30; }
+  .hotspot { position: absolute; box-sizing: border-box; touch-action: none; }
+  .hotspot.edit {
+    background: rgba(230, 0, 126, 0.25);
+    border: 2px dashed rgba(255,255,255,0.85);
+  }
+  .hotspot.edit .hs-label {
+    position: absolute; top: 3px; left: 5px;
+    color: #fff; font: 700 10px -apple-system, Arial, sans-serif;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.85); pointer-events: none; white-space: nowrap;
+  }
+  .hotspot.edit .hs-resize {
+    position: absolute; right: -10px; bottom: -10px; width: 22px; height: 22px;
+    background: #fff; border: 2px solid rgba(230,0,126,0.95); border-radius: 50%;
+  }
+  .hotspot.edit .hs-delete {
+    position: absolute; top: -11px; right: -11px; width: 22px; height: 22px;
+    background: #e6007e; color: #fff; border-radius: 50%;
+    font: 700 13px/22px -apple-system, Arial, sans-serif; text-align: center;
+  }
+  #hotspot-readout {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 4000;
+    background: rgba(15,15,15,0.96); color: #e5e5e5;
+    font: 11px/1.6 "SF Mono", Menlo, monospace;
+    padding: 8px 10px calc(14px + env(safe-area-inset-bottom));
+    max-height: 32vh; overflow-y: auto; display: none;
+  }
+  #hotspot-readout.show { display: block; }
+  #hotspot-readout .row { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  #hotspot-copy-btn { position: sticky; top: 0; width: 100%; background: #e6007e; color: #fff; border: none; border-radius: 6px; padding: 9px; font: 700 12px -apple-system, Arial, sans-serif; margin-bottom: 6px; }
+
+  /* ══════════ Generic sub-pages ══════════ */
+  .subpage {
+    position: fixed; inset: 0; width: 100vw; height: 100vh; background: #111;
+    z-index: 1500; transform: translateX(100%);
+    transition: transform 0.36s cubic-bezier(0.32,0.72,0,1);
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  .subpage.open { transform: translateX(0); }
+  .sp-header {
+    position: sticky; top: 0; background: #111;
+    padding: 54px 16px 14px; display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 2;
+  }
+  .sp-back { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; cursor: pointer; }
+  .sp-title { color: #fff; font: 600 17px -apple-system, "SF Pro Display", Arial, sans-serif; }
+  .sp-tabs { display: flex; gap: 20px; padding: 14px 16px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .sp-tab { color: #a8b0b8; font: 600 13px -apple-system, Arial, sans-serif; padding: 0 0 12px; border-bottom: 2px solid transparent; }
+  .sp-tab.active { color: #fff; border-color: #e6007e; }
+  .sp-body { padding: 24px 16px 60px; }
+  .sp-empty { color: #a8b0b8; text-align: center; padding: 60px 24px; font: 15px/1.5 -apple-system, Arial, sans-serif; }
+  .sp-spinner-wrap { display: flex; justify-content: center; padding: 90px 0; gap: 6px; }
+  .sp-dot { width: 8px; height: 8px; border-radius: 50%; background: #a8b0b8; animation: dotPulse 1s infinite ease-in-out; }
+  .sp-dot:nth-child(2) { animation-delay: 0.15s; }
+  .sp-dot:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes dotPulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
+
+  .sp-camera { position: relative; width: 100%; height: calc(100vh - 130px); background: #000; overflow: hidden; }
+  .sp-camera video { width: 100%; height: 100%; object-fit: cover; }
+  .sp-camera-msg { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: #a8b0b8; text-align: center; padding: 0 30px; font: 14px/1.5 -apple-system, Arial, sans-serif; }
+  .sp-viewfinder { position: absolute; top: 48%; left: 50%; width: 78%; aspect-ratio: 16/9; transform: translate(-50%, -50%); }
+  .sp-corner { position: absolute; width: 26px; height: 26px; border-color: #fff; }
+  .sp-corner.tl { top: 0; left: 0; border-top: 3px solid; border-left: 3px solid; }
+  .sp-corner.tr { top: 0; right: 0; border-top: 3px solid; border-right: 3px solid; }
+  .sp-corner.bl { bottom: 0; left: 0; border-bottom: 3px solid; border-left: 3px solid; }
+  .sp-corner.br { bottom: 0; right: 0; border-bottom: 3px solid; border-right: 3px solid; }
+  .sp-cam-controls {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 24px calc(30px + env(safe-area-inset-bottom));
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  }
+  .sp-torch-btn { color: #fff; font: 600 13px -apple-system, Arial, sans-serif; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 14px; }
+  .sp-scan-btn { width: 64px; height: 64px; border-radius: 50%; background: #fff; border: 4px solid rgba(255,255,255,0.4); }
 </style>
 </head>
 <body>
-<!-- Privacy cover screen -->
 <div id="privacy-cover">
   <img src="https://www.image2url.com/r2/default/images/1787920494762-547907e5-f90d-4695-9664-d39198e8d54e.png" alt="">
 </div>
+<button id="hotspot-toggle-btn">Preview links</button>
+<button id="hotspot-add-btn">+ Add link</button>
 <div id="p1-top-bar"></div>
 <div class="header-wrap" id="h1-wrap" style="display:none">
   <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled-3%20(2).png" id="header1" draggable="false" style="pointer-events:none">
@@ -188,7 +261,6 @@
     <div id="page2-media-wrap">
       <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design.jpg" alt="Untitled design (1)" class="page2-main">
 
-      <!-- Carousel overlaid on the page2 image; scrolls together with it -->
       <div id="fav-carousel">
         <div id="fav-track">
           <div class="fav-card"><img src="https://i.postimg.cc/85YB3Kms/IMG-8515.jpg" alt="" draggable="false"></div>
@@ -199,7 +271,7 @@
           <div class="fav-dot"></div>
         </div>
       </div>
-      <!-- /carousel -->
+      <!-- hotspot link layer is injected here by JS -->
 
     </div>
   </div>
@@ -238,6 +310,7 @@
     </div>
   </div>
 </div>
+<div id="hotspot-readout" class="show"></div>
 <script>
   const GIF_SRC = "https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif";
   const p1 = document.getElementById("page1");
@@ -256,7 +329,6 @@
   const START_THRESHOLD = 40;
   const SPINNER_GAP = 24;
 
-  /* ── Privacy cover for iOS home screen web app ── */
   let coverTimer = null;
   function showCover() { privacyCover.style.display = "block"; }
   function hideCover() { clearTimeout(coverTimer); privacyCover.style.display = "none"; }
@@ -397,6 +469,12 @@
     showPage(saved ? parseInt(saved) : 2);
     setTimeout(() => { const pg = document.getElementById("pulse-group"); if (pg) pg.classList.add("pulse"); }, 10);
     initCarousel();
+    buildHotspotLayer();
+    buildSubpages();
+    readoutEl = document.getElementById("hotspot-readout");
+    document.getElementById("hotspot-toggle-btn").addEventListener("click", toggleEditMode);
+    document.getElementById("hotspot-add-btn").addEventListener("click", addHotspot);
+    updateReadout();
   }
   document.getElementById("header2").addEventListener("click", () => showPage(1));
   document.getElementById("page2").addEventListener("click", () => showPage(1));
@@ -448,7 +526,6 @@
     if (p1.classList.contains("active") && startX < 50 && diffX > 80) showPage(2);
   });
 
-  /* ══════════════ Carousel overlaid on page2 image ══════════════ */
   function initCarousel() {
     const carousel = document.getElementById("fav-carousel");
     const track = document.getElementById("fav-track");
@@ -519,6 +596,233 @@
     window.addEventListener("resize", () => { measure(); goTo(index, false); });
     measure();
     goTo(0, false);
+  }
+
+  /* ══════════════ Hotspot link editor ══════════════ */
+  // Edit each entry below (or drag/resize on-screen) to line hotspots up with
+  // the images on page 2. top/left/width/height are all percentages relative
+  // to the page-2 image, so they stay aligned regardless of screen size.
+  // "target" must match a key in SUBPAGES further down.
+  let HOTSPOTS = [
+    { id: 'registrations', label: 'Registrations',   top: 12, left: 5,  width: 42, height: 9, target: 'registrations' },
+    { id: 'fines',         label: 'Fines & demerits', top: 12, left: 53, width: 42, height: 9, target: 'fines' },
+    { id: 'vouchers',      label: 'Vouchers',         top: 23, left: 5,  width: 42, height: 9, target: 'vouchers' },
+    { id: 'disaster',      label: 'Disaster support', top: 23, left: 53, width: 42, height: 9, target: 'disaster' },
+    { id: 'locations',     label: 'Locations',        top: 34, left: 5,  width: 42, height: 9, target: 'locations' },
+    { id: 'qrcheckin',     label: 'QR check-in',      top: 34, left: 53, width: 42, height: 9, target: 'qrcheckin' },
+    { id: 'checklicence',  label: 'Check licence',    top: 45, left: 5,  width: 42, height: 9, target: 'checklicence' },
+    { id: 'help',          label: 'Help & support',   top: 45, left: 53, width: 42, height: 9, target: 'help' },
+  ];
+
+  // Each key is a destination screen. type:'camera' renders a live camera
+  // viewfinder; type:'list' renders a header/tabs/empty-state screen.
+  const SUBPAGES = {
+    registrations: { title: 'Registrations', type: 'camera', tabs: ['Check plate', 'My registrations'] },
+    fines:         { title: 'Fines and demerits', type: 'list', tabs: ['Fines', 'Demerits'], empty: "You don't have any vehicle-related fines." },
+    vouchers:      { title: 'Vouchers', type: 'list', tabs: ['My vouchers', 'Browse'], loading: true, empty: "You don't have any vouchers yet." },
+    disaster:      { title: 'Disaster support & grants', type: 'list', tabs: ['Resources', 'My grants'], empty: 'Storms and Floods · Bushfires — preparation guides.' },
+    locations:     { title: 'Locations', type: 'list', loading: true, empty: 'Search for a service centre near you.' },
+    qrcheckin:     { title: 'QR code check-in', type: 'camera', tabs: ['Scan', 'Last check-in'] },
+    checklicence:  { title: 'Check a licence or credential', type: 'list', empty: 'Verify a licence or credential · Verify a Birth Certificate · Verify a Driver Licence · Verify a Photo Card.' },
+    help:          { title: 'Help and support', type: 'list', empty: 'Would you like to give feedback or tell us about a problem?' },
+  };
+
+  let editMode = true;
+  let hotspotLayer, readoutEl;
+
+  function buildHotspotLayer() {
+    hotspotLayer = document.createElement('div');
+    hotspotLayer.id = 'hotspot-layer';
+    document.getElementById('page2-media-wrap').appendChild(hotspotLayer);
+    renderHotspots();
+  }
+
+  function renderHotspots() {
+    hotspotLayer.innerHTML = '';
+    HOTSPOTS.forEach(hs => {
+      const el = document.createElement('div');
+      el.className = 'hotspot' + (editMode ? ' edit' : '');
+      el.dataset.id = hs.id;
+      el.style.top = hs.top + '%';
+      el.style.left = hs.left + '%';
+      el.style.width = hs.width + '%';
+      el.style.height = hs.height + '%';
+      if (editMode) {
+        el.innerHTML = `<span class="hs-label">${hs.label}</span><span class="hs-delete">\u00d7</span><span class="hs-resize"></span>`;
+      }
+      hotspotLayer.appendChild(el);
+      wireHotspot(el, hs);
+    });
+    updateReadout();
+  }
+
+  function wireHotspot(el, hs) {
+    el.addEventListener('click', e => {
+      if (editMode) return;
+      e.preventDefault();
+      showSubpage(hs.target);
+    });
+    if (!editMode) return;
+
+    const del = el.querySelector('.hs-delete');
+    del.addEventListener('touchend', e => { e.preventDefault(); e.stopPropagation(); removeHotspot(hs.id); }, { passive: false });
+    del.addEventListener('click', e => { e.stopPropagation(); removeHotspot(hs.id); });
+
+    const resizeHandle = el.querySelector('.hs-resize');
+    let mode = null, sx = 0, sy = 0, orig = {};
+    const wrap = document.getElementById('page2-media-wrap');
+    const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+    function start(e, m) {
+      mode = m;
+      const t = e.touches ? e.touches[0] : e;
+      sx = t.clientX; sy = t.clientY;
+      orig = { top: hs.top, left: hs.left, width: hs.width, height: hs.height };
+      e.stopPropagation();
+    }
+    function move(e) {
+      if (!mode) return;
+      const t = e.touches ? e.touches[0] : e;
+      const r = wrap.getBoundingClientRect();
+      const dxPct = ((t.clientX - sx) / r.width) * 100;
+      const dyPct = ((t.clientY - sy) / r.height) * 100;
+      if (mode === 'drag') {
+        hs.left = clamp(orig.left + dxPct, 0, 100 - hs.width);
+        hs.top = clamp(orig.top + dyPct, 0, 100 - hs.height);
+      } else {
+        hs.width = clamp(orig.width + dxPct, 3, 100 - hs.left);
+        hs.height = clamp(orig.height + dyPct, 3, 100 - hs.top);
+      }
+      el.style.top = hs.top + '%'; el.style.left = hs.left + '%';
+      el.style.width = hs.width + '%'; el.style.height = hs.height + '%';
+      updateReadout();
+    }
+    function end() { mode = null; }
+
+    el.addEventListener('touchstart', e => start(e, 'drag'), { passive: true });
+    el.addEventListener('mousedown', e => start(e, 'drag'));
+    resizeHandle.addEventListener('touchstart', e => start(e, 'resize'), { passive: true });
+    resizeHandle.addEventListener('mousedown', e => start(e, 'resize'));
+    window.addEventListener('touchmove', move, { passive: true });
+    window.addEventListener('mousemove', move);
+    window.addEventListener('touchend', end);
+    window.addEventListener('mouseup', end);
+  }
+
+  function removeHotspot(id) {
+    HOTSPOTS = HOTSPOTS.filter(h => h.id !== id);
+    renderHotspots();
+  }
+
+  function addHotspot() {
+    const id = 'link' + Date.now();
+    HOTSPOTS.push({ id, label: 'New link', top: 40, left: 30, width: 40, height: 9, target: 'help' });
+    renderHotspots();
+  }
+
+  function updateReadout() {
+    if (!readoutEl) return;
+    const rows = HOTSPOTS.map(h =>
+      `<div class="row"><span>${h.label}</span><span>top:${h.top.toFixed(1)}% left:${h.left.toFixed(1)}% w:${h.width.toFixed(1)}% h:${h.height.toFixed(1)}%</span></div>`
+    ).join('');
+    readoutEl.innerHTML = `<button id="hotspot-copy-btn">Copy config</button>${rows}`;
+    document.getElementById('hotspot-copy-btn').addEventListener('click', copyConfig);
+  }
+
+  function copyConfig() {
+    const json = JSON.stringify(HOTSPOTS.map(({ id, label, top, left, width, height, target }) =>
+      ({ id, label, top: +top.toFixed(2), left: +left.toFixed(2), width: +width.toFixed(2), height: +height.toFixed(2), target })), null, 2);
+    if (navigator.clipboard) navigator.clipboard.writeText(json).catch(() => {});
+    const btn = document.getElementById('hotspot-copy-btn');
+    if (btn) { const old = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = old; }, 1200); }
+  }
+
+  function toggleEditMode() {
+    editMode = !editMode;
+    document.getElementById('hotspot-toggle-btn').textContent = editMode ? 'Preview links' : 'Edit links';
+    document.getElementById('hotspot-add-btn').style.display = editMode ? 'block' : 'none';
+    readoutEl.classList.toggle('show', editMode);
+    renderHotspots();
+  }
+
+  /* ══════════════ Generic sub-pages ══════════════ */
+  function buildSubpages() {
+    const container = document.createElement('div');
+    container.id = 'subpage-container';
+    Object.entries(SUBPAGES).forEach(([key, cfg]) => {
+      const sp = document.createElement('div');
+      sp.className = 'subpage';
+      sp.dataset.id = key;
+      sp.innerHTML = subpageHTML(cfg);
+      container.appendChild(sp);
+      sp.querySelector('.sp-back').addEventListener('click', () => hideSubpage(key));
+    });
+    document.body.appendChild(container);
+  }
+
+  function subpageHTML(cfg) {
+    const tabs = cfg.tabs ? `<div class="sp-tabs">${cfg.tabs.map((t, i) => `<div class="sp-tab${i === 0 ? ' active' : ''}">${t}</div>`).join('')}</div>` : '';
+    if (cfg.type === 'camera') {
+      return `
+        <div class="sp-header"><div class="sp-back">\u2039</div><div class="sp-title">${cfg.title}</div></div>
+        ${tabs}
+        <div class="sp-camera">
+          <video autoplay playsinline muted></video>
+          <div class="sp-camera-msg">Camera access is needed for this feature. Allow it in your browser settings, or enter details manually.</div>
+          <div class="sp-viewfinder"><span class="sp-corner tl"></span><span class="sp-corner tr"></span><span class="sp-corner bl"></span><span class="sp-corner br"></span></div>
+          <div class="sp-cam-controls">
+            <button class="sp-torch-btn">Torch on</button>
+            <button class="sp-scan-btn"></button>
+            <span style="width:70px"></span>
+          </div>
+        </div>`;
+    }
+    return `
+      <div class="sp-header"><div class="sp-back">\u2039</div><div class="sp-title">${cfg.title}</div></div>
+      ${tabs}
+      <div class="sp-body">
+        ${cfg.loading
+          ? `<div class="sp-spinner-wrap"><div class="sp-dot"></div><div class="sp-dot"></div><div class="sp-dot"></div></div><div class="sp-empty" style="display:none">${cfg.empty || ''}</div>`
+          : `<div class="sp-empty">${cfg.empty || ''}</div>`}
+      </div>`;
+  }
+
+  function showSubpage(id) {
+    const sp = document.querySelector(`.subpage[data-id="${id}"]`);
+    if (!sp) return;
+    sp.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    const cfg = SUBPAGES[id];
+    if (cfg.loading) {
+      const spinnerWrap = sp.querySelector('.sp-spinner-wrap');
+      const empty = sp.querySelector('.sp-empty');
+      if (spinnerWrap) setTimeout(() => { spinnerWrap.style.display = 'none'; if (empty) empty.style.display = 'block'; }, 800);
+    }
+    if (cfg.type === 'camera') startCamera(sp);
+  }
+
+  function hideSubpage(id) {
+    const sp = document.querySelector(`.subpage[data-id="${id}"]`);
+    if (!sp) return;
+    sp.classList.remove('open');
+    document.body.style.overflow = '';
+    stopCamera(sp);
+  }
+
+  async function startCamera(sp) {
+    const video = sp.querySelector('video');
+    const msg = sp.querySelector('.sp-camera-msg');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      video.srcObject = stream;
+      sp._stream = stream;
+      msg.style.display = 'none';
+    } catch (err) {
+      msg.style.display = 'flex';
+    }
+  }
+  function stopCamera(sp) {
+    if (sp._stream) { sp._stream.getTracks().forEach(t => t.stop()); sp._stream = null; }
   }
 </script>
 </body>
