@@ -12,6 +12,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="App Title">
 <style>
+  :root {
+    --brand-accent: #D7153A; /* Waratah red */
+    --brand-info: #2E5299;
+    --brand-success: #008A07;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { height: 100%; background-color: #111111; }
   body { background: transparent; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
@@ -121,7 +126,7 @@
   .page2-main { width: 100%; display: block; }
   #fav-carousel {
     position: absolute;
-    top: 3.9%;
+    top: 4.4%;
     left: 0;
     width: 100%;
     overflow: hidden;
@@ -134,8 +139,8 @@
   .fav-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.35); transition: background 0.2s; }
 
   /* ══════════ Hotspot links (positions locked in) ══════════ */
-  #hotspot-layer { position: absolute; inset: 0; z-index: 30; }
-  .hotspot { position: absolute; box-sizing: border-box; cursor: pointer; }
+  #hotspot-layer { position: absolute; inset: 0; z-index: 30; pointer-events: none; }
+  .hotspot { position: absolute; box-sizing: border-box; cursor: pointer; pointer-events: auto; }
 
   /* ══════════ Generic sub-pages ══════════ */
   .subpage {
@@ -154,7 +159,7 @@
   .sp-title { color: #fff; font: 600 17px -apple-system, "SF Pro Display", Arial, sans-serif; }
   .sp-tabs { display: flex; gap: 20px; padding: 14px 16px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
   .sp-tab { color: #a8b0b8; font: 600 13px -apple-system, Arial, sans-serif; padding: 0 0 12px; border-bottom: 2px solid transparent; }
-  .sp-tab.active { color: #fff; border-color: #e6007e; }
+  .sp-tab.active { color: #fff; border-color: var(--brand-accent); }
   .sp-body { padding: 24px 16px 60px; }
   .sp-empty { color: #a8b0b8; text-align: center; padding: 60px 24px; font: 15px/1.5 -apple-system, Arial, sans-serif; }
   .sp-spinner-wrap { display: flex; justify-content: center; padding: 90px 0; gap: 6px; }
@@ -185,23 +190,23 @@
   .sp-heading { color: #fff; font: 600 20px/1.35 -apple-system, "SF Pro Display", Arial, sans-serif; margin-bottom: 14px; }
   .sp-bullets { list-style: none; margin: 0 0 6px; padding: 0; }
   .sp-bullets li { color: #c7ccd1; font: 14px/1.6 -apple-system, Arial, sans-serif; padding-left: 16px; position: relative; margin-bottom: 4px; }
-  .sp-bullets li::before { content: "•"; position: absolute; left: 0; color: #e6007e; }
+  .sp-bullets li::before { content: "•"; position: absolute; left: 0; color: var(--brand-accent); }
   .sp-instruction { color: #c7ccd1; font: 14px/1.6 -apple-system, Arial, sans-serif; margin-bottom: 4px; }
   .sp-field-label { color: #a8b0b8; font: 13px -apple-system, Arial, sans-serif; margin: 22px 0 8px; }
   .sp-field { background: #000; border: 1px solid rgba(255,255,255,0.35); border-radius: 6px; height: 46px; }
   .sp-info-line { display: flex; align-items: center; gap: 8px; justify-content: center; color: #c7ccd1; font: 13px -apple-system, Arial, sans-serif; margin-top: 16px; }
-  .sp-info-dot { width: 16px; height: 16px; border-radius: 50%; background: #4aa8ff; color: #111; font: 700 11px/16px -apple-system, Arial, sans-serif; text-align: center; flex-shrink: 0; }
+  .sp-info-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--brand-info); color: #fff; font: 700 11px/16px -apple-system, Arial, sans-serif; text-align: center; flex-shrink: 0; }
   .sp-illustration { font-size: 54px; text-align: center; margin: 30px 0 18px; }
   .sp-empty-title { color: #fff; font: 600 18px -apple-system, Arial, sans-serif; text-align: center; margin-bottom: 8px; }
   .sp-empty-sub { color: #a8b0b8; font: 14px/1.5 -apple-system, Arial, sans-serif; text-align: center; }
-  .sp-help-link { color: #4aa8ff; font: 600 14px -apple-system, Arial, sans-serif; margin-left: auto; }
-  .sp-badge { background: #e6007e; color: #fff; font: 700 10px -apple-system, Arial, sans-serif; border-radius: 8px; padding: 1px 6px; margin-left: 4px; }
+  .sp-help-link { color: var(--brand-info); font: 600 14px -apple-system, Arial, sans-serif; margin-left: auto; }
+  .sp-badge { background: var(--brand-accent); color: #fff; font: 700 10px -apple-system, Arial, sans-serif; border-radius: 8px; padding: 1px 6px; margin-left: 4px; }
   .sp-menu-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.08); cursor: pointer; }
   .sp-menu-icon { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
   .sp-menu-text { flex: 1; }
   .sp-menu-label { color: #fff; font: 600 15px -apple-system, Arial, sans-serif; margin-bottom: 3px; }
   .sp-menu-desc { color: #a8b0b8; font: 13px/1.4 -apple-system, Arial, sans-serif; }
-  .sp-menu-info { display: flex; gap: 6px; align-items: flex-start; color: #cfe4f5; font: 12px/1.4 -apple-system, Arial, sans-serif; background: rgba(74,168,255,0.1); border-radius: 6px; padding: 8px 10px; margin-top: 8px; }
+  .sp-menu-info { display: flex; gap: 6px; align-items: flex-start; color: #cfe4f5; font: 12px/1.4 -apple-system, Arial, sans-serif; background: rgba(46,82,153,0.16); border-radius: 6px; padding: 8px 10px; margin-top: 8px; }
   .sp-menu-arrow { color: #6b7280; font-size: 18px; margin-top: 6px; }
 </style>
 </head>
@@ -613,6 +618,8 @@
     { id: 'checklicence',  top: 88.27, left: 5.26, width: 91.49, height: 5.88, target: 'checklicence' },
     { id: 'help',          top: 97,    left: 4.54, width: 42.26, height: 3,    target: 'help' },
   ];
+  // To make a hotspot open an external site instead of an internal page,
+  // swap its "target" for a "url", e.g. { id:'locations', ..., url:'https://example.com' }
 
   // Each key is a destination screen, matching the screen-by-screen spec.
   const SUBPAGES = {
@@ -681,7 +688,11 @@
       el.style.left = hs.left + '%';
       el.style.width = hs.width + '%';
       el.style.height = hs.height + '%';
-      el.addEventListener('click', e => { e.preventDefault(); showSubpage(hs.target); });
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        if (hs.url) { window.open(hs.url, '_blank', 'noopener'); }
+        else { showSubpage(hs.target); }
+      });
       hotspotLayer.appendChild(el);
     });
   }
