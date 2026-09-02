@@ -338,6 +338,11 @@
 </div>
 <script>
   const GIF_SRC = "https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif";
+  const FOOTER_IMAGES = {
+    2: "https://file.garden/aeSpG6iUoRzyQ8ca/page2footer.png",
+    3: "https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design%20(8).jpg",
+    4: "https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design%20(6).jpg",
+  };
   const p1 = document.getElementById("page1");
   const p2 = document.getElementById("page2");
   const p3 = document.getElementById("page3");
@@ -506,6 +511,7 @@
     if (n === 3) { h3wrap.style.top = "0px"; }
     p1TopBar.style.display = n === 1 ? "block" : "none";
     f2wrap.style.display = n === 1 ? "none" : "block";
+    if (FOOTER_IMAGES[n]) { document.getElementById("footer2").src = FOOTER_IMAGES[n]; }
 
     localStorage.setItem("currentPage", n);
     setOffsets();
