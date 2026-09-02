@@ -121,7 +121,7 @@
   .modal-footer { background: #373b3e; padding: 14px 20px 22px; display: flex; justify-content: center; flex-shrink: 0; }
   .modal-close-btn { background: transparent; border: 1.5px solid #d1e6f0; border-radius: 6px; color: #d1e6f0; font-family: -apple-system, "SF Pro Text", Arial, sans-serif; font-size: 16px; font-weight: 500; padding: 14px 0; width: 100%; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
   .modal-close-btn:active { opacity: 0.6; }
-  .licence-field-label { color: #a8b0b8; font-family: -apple-system, "SF Pro Text", Arial, sans-serif; font-size: 13px; font-weight: 400; margin-bottom: 4px; }
+  .licence-field-label { color: #373b3e; font-family: -apple-system, "SF Pro Text", Arial, sans-serif; font-size: 13px; font-weight: 400; margin-bottom: 4px; }
   .licence-field-value { color: #ffffff; font-family: -apple-system, "SF Pro Display", Arial, sans-serif; font-size: 16px; font-weight: 700; line-height: 1.4; margin-bottom: 20px; }
   .licence-field-value:last-child { margin-bottom: 0; }
   #conditions-body img { width: 100%; height: auto; display: block; border-radius: 4px; }
@@ -222,6 +222,10 @@
 
   #page4-media-wrap { position: relative; width: 100%; }
   .page4-main { width: 100%; display: block; }
+
+  #page5-media-wrap { position: relative; width: 100%; }
+  .page5-main { width: 100%; display: block; }
+  #p5-back-zone { position: fixed; left: 0; right: 0; bottom: 0; height: 20vh; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -297,6 +301,14 @@
     </div>
   </div>
 </div>
+<div id="page5" class="page">
+  <div class="content" id="p5-content">
+    <div id="page5-media-wrap">
+      <img src="https://file.garden/aeSpG6iUoRzyQ8ca/IMG_8545.PNG" alt="Favourite" class="page5-main">
+      <div id="p5-back-zone"></div>
+    </div>
+  </div>
+</div>
 <div class="footer-wrap" id="f-wrap">
   <img src="https://file.garden/aeSpG6iUoRzyQ8ca/page2footer.png" id="footer2">
   <div class="footer-zones">
@@ -347,6 +359,7 @@
   const p2 = document.getElementById("page2");
   const p3 = document.getElementById("page3");
   const p4 = document.getElementById("page4");
+  const p5 = document.getElementById("page5");
   const h1wrap = document.getElementById("h1-wrap");
   const h2wrap = document.getElementById("h2-wrap");
   const h3wrap = document.getElementById("h3-wrap");
@@ -463,7 +476,8 @@
     if (p1.classList.contains("active")) return 1;
     if (p2.classList.contains("active")) return 2;
     if (p3.classList.contains("active")) return 3;
-    return 4;
+    if (p4.classList.contains("active")) return 4;
+    return 5;
   }
   function setOffsets() {
     const n = currentPageNum();
@@ -484,6 +498,7 @@
       document.getElementById("p4-content").style.paddingTop = "0px";
       document.getElementById("p4-content").style.paddingBottom = fHeight + "px";
     }
+    // page 5 is a single self-contained image with its own back-tap zone — no padding needed
     spinner.style.top = (hHeight + SPINNER_GAP - (spinner.offsetHeight / 2)) + "px";
     html.style.background = n === 1 ? "#111111" : "rgb(0, 37, 100)";
   }
@@ -502,6 +517,7 @@
     p2.classList.toggle("active", n === 2);
     p3.classList.toggle("active", n === 3);
     p4.classList.toggle("active", n === 4);
+    p5.classList.toggle("active", n === 5);
 
     h1wrap.style.display = n === 1 ? "block" : "none";
     h2wrap.style.display = n === 2 ? "block" : "none";
@@ -510,7 +526,7 @@
     if (n === 2) { h2wrap.style.top = "0px"; }
     if (n === 3) { h3wrap.style.top = "0px"; }
     p1TopBar.style.display = n === 1 ? "block" : "none";
-    f2wrap.style.display = n === 1 ? "none" : "block";
+    f2wrap.style.display = (n === 1 || n === 5) ? "none" : "block";
     if (FOOTER_IMAGES[n]) { document.getElementById("footer2").src = FOOTER_IMAGES[n]; }
 
     localStorage.setItem("currentPage", n);
@@ -529,6 +545,11 @@
       z.addEventListener('click', () => showPage(parseInt(z.dataset.page)));
       z.addEventListener('touchend', e => { e.preventDefault(); showPage(parseInt(z.dataset.page)); }, { passive: false });
     });
+    const p5Back = document.getElementById('p5-back-zone');
+    if (p5Back) {
+      p5Back.addEventListener('click', () => showPage(2));
+      p5Back.addEventListener('touchend', e => { e.preventDefault(); showPage(2); }, { passive: false });
+    }
   }
   document.getElementById("header2").addEventListener("click", () => showPage(2));
   window.addEventListener("load", init);
@@ -664,6 +685,25 @@
     window.addEventListener("resize", () => { measure(); goTo(index, false); });
     measure();
     goTo(0, false);
+
+    // The FIRST card opens page 5, and only while it's the active/centred one
+    const firstCard = cards[0];
+    if (firstCard) {
+      firstCard.style.cursor = "pointer";
+      firstCard.addEventListener("click", e => {
+        if (didDrag) return;
+        if (index !== 0) return;
+        e.stopPropagation();
+        showPage(5);
+      });
+      firstCard.addEventListener("touchend", e => {
+        if (didDrag) return;
+        if (index !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        showPage(5);
+      }, { passive: false });
+    }
 
     // Only the SECOND card opens page 1, and only while it's the active/centred one
     const secondCard = cards[1];
