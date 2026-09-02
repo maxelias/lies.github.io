@@ -778,7 +778,7 @@
       });
     }
 
-    let lastMoveX = 0, lastMoveT = 0, velocity = 0, rafPending = false, pendingDiff = 0;
+    let lastMoveX = 0, lastMoveT = 0, velocity = 0;
 
     track.addEventListener("touchstart", e => {
       measure();
@@ -794,13 +794,6 @@
       e.stopPropagation();
     }, { passive: true });
 
-    function applyDrag(diff) {
-      rafPending = false;
-      track.style.transform = `translateX(${baseOffset + diff}px)`;
-      updateDots(index - diff / cardWidth);
-      updateScale(index - diff / cardWidth, false);
-    }
-
     track.addEventListener("touchmove", e => {
       if (!cDragging) return;
       cCurrentX = e.touches[0].clientX;
@@ -814,8 +807,9 @@
         if (!didDrag) { cards.forEach(c => c.classList.remove("pressed")); }
         didDrag = true;
       }
-      pendingDiff = diff;
-      if (!rafPending) { rafPending = true; requestAnimationFrame(() => applyDrag(pendingDiff)); }
+      track.style.transform = `translateX(${baseOffset + diff}px)`;
+      updateDots(index - diff / cardWidth);
+      updateScale(index - diff / cardWidth, false);
       e.stopPropagation();
     }, { passive: true });
 
