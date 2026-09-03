@@ -433,6 +433,13 @@
   });
   window.addEventListener("pagehide", showCover);
   window.addEventListener("pageshow", hideCover);
+  // Backup watchdog: some iOS versions don't reliably fire the above events for
+  // the App Switcher gesture on standalone home-screen apps. Polling document.hidden
+  // catches those cases within ~150ms even when no event fires at all.
+  setInterval(() => {
+    if (document.hidden && !privacyCover.classList.contains("show")) { showCover(); }
+    else if (!document.hidden && privacyCover.classList.contains("show")) { hideCover(); }
+  }, 150);
 
   function openPopup() {
     popupOverlay.style.display = "block";
