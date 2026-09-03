@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>App Title</title>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc; img-src 'self' data: https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc; media-src 'self' https://file.garden blob:; connect-src 'self'; script-src 'self' 'unsafe-inline';">
 <link rel="icon" href="https://play-lh.googleusercontent.com/uulKLexOFnvrpg5ltH3jBAnCbMMed6VbaogVr9etutmFXO-P5w0JRa7sgJ1EstibjtI=w240-h480-rw" type="image/png">
@@ -65,7 +65,7 @@
   #p1-content { background: #111111; }
   #p2-content { background: #111111; }
   .main-gif { width: 100%; display: block; }
-  #gif-wrapper { position: relative; display: block; width: 100%; background: #111111; }
+  #gif-wrapper { position: relative; display: block; width: 100%; background: #111111; touch-action: pan-y; }
   #main-gif { width: 100%; display: block; filter: brightness(1.18); will-change: transform; }
   #licence-tap-left, #licence-tap-right {
     position: absolute;
@@ -126,9 +126,14 @@
   #privacy-cover {
     position: fixed;
     inset: 0;
-    z-index: 9999;
-    display: none;
+    z-index: 100000;
     background: #111111;
+    opacity: 0;
+    visibility: hidden;
+  }
+  #privacy-cover.show {
+    opacity: 1;
+    visibility: visible;
   }
   #privacy-cover img {
     width: 100%;
@@ -415,10 +420,13 @@
   const START_THRESHOLD = 40;
   const SPINNER_GAP = 24;
 
-  let coverTimer = null;
-  function showCover() { privacyCover.style.display = "block"; }
-  function hideCover() { clearTimeout(coverTimer); privacyCover.style.display = "none"; }
-  window.addEventListener("blur", () => { coverTimer = setTimeout(showCover, 80); });
+  function showCover() { privacyCover.classList.add("show"); }
+  function hideCover() { privacyCover.classList.remove("show"); }
+  // No setTimeout delay here — iOS takes the App Switcher snapshot almost
+  // immediately on the swipe-up gesture, so the cover has to appear the instant
+  // any of these fire, not on a debounce. visibilitychange is the most reliable
+  // signal on iOS; blur/pagehide are kept as extra safety nets for older builds.
+  window.addEventListener("blur", showCover);
   window.addEventListener("focus", hideCover);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) { showCover(); } else { hideCover(); }
@@ -661,6 +669,9 @@
       startX = t.clientX;
       currentX = 0;
       vw = window.innerWidth;
+      // Stop iOS Safari's own edge-swipe-back gesture from also engaging —
+      // that's what was nudging the page sideways before our drag took over.
+      e.preventDefault();
 
       // Bring Home's header/footer/content in as a live layer sliding from the left
       p2.style.display = "block";
@@ -691,6 +702,7 @@
     }
     function onMove(e) {
       if (!dragging) return;
+      e.preventDefault();
       const t = e.touches[0];
       currentX = Math.max(0, t.clientX - startX);
       const px = `${currentX}px`;
@@ -725,8 +737,8 @@
       }, 300);
     }
 
-    window.addEventListener("touchstart", onStart, { passive: true });
-    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("touchstart", onStart, { passive: false });
+    window.addEventListener("touchmove", onMove, { passive: false });
     window.addEventListener("touchend", onEnd);
   }
 
