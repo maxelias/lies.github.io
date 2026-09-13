@@ -781,7 +781,6 @@
     // before the GIF has a chance to animate further.
     function captureFirstFrame() {
       const grabber = new Image();
-      grabber.crossOrigin = 'anonymous';
       grabber.onload = () => {
         staticCanvas.width = grabber.naturalWidth;
         staticCanvas.height = grabber.naturalHeight;
@@ -791,8 +790,9 @@
     }
     captureFirstFrame();
 
-    // Needed for canvas to read pixel data from this cross-origin GIF without tainting
-    gifImg.crossOrigin = 'anonymous';
+    // drawImage() works on cross-origin images without crossOrigin/CORS setup —
+    // it only "taints" the canvas for pixel-reading APIs (toDataURL, getImageData),
+    // which we never use here since we only display the canvas, not read from it.
 
     function setPlaying(playing) {
       if (playing === isPlaying) return; // no-op if state hasn't changed — prevents flicker
