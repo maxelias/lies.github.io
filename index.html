@@ -86,14 +86,14 @@
   #motion-activate-btn:active { transform: scale(0.96); opacity: 0.85; }
 
   #motion-gif-wrapper { position: relative; width: 100%; filter: brightness(1.18); }
-  #motion-gif-wrapper img,
   #motion-gif-wrapper canvas {
+    width: 100%; height: auto; display: block; /* defines the wrapper's size at all times */
+  }
+  #motion-gif-wrapper img {
     width: 100%; display: block; position: absolute; top: 0; left: 0;
     opacity: 0; transition: opacity 0.35s ease;
   }
-  #motion-gif-wrapper img.visible,
-  #motion-gif-wrapper canvas.visible { opacity: 1; position: relative; }
-  #motion-gif-wrapper canvas { height: auto; }
+  #motion-gif-wrapper img.visible { opacity: 1; }
 
   #licence-tap-left, #licence-tap-right {
     position: absolute;
@@ -800,7 +800,6 @@
       if (playing) {
         gifImg.src = gifImg.dataset.src + '?' + Date.now(); // restart from frame 1 each activation
         gifImg.classList.add('visible');
-        staticCanvas.classList.remove('visible');
       } else {
         // Capture whatever frame the GIF is showing right now, so the static
         // image is the last frame it was on — not always the first frame.
@@ -809,9 +808,13 @@
           staticCanvas.height = gifImg.naturalHeight;
           try { staticCtx.drawImage(gifImg, 0, 0); } catch (err) { /* CORS-tainted canvas — keep prior frame */ }
         }
-        gifImg.classList.remove('visible');
-        gifImg.removeAttribute('src'); // stop decoding/playback while hidden
-        staticCanvas.classList.add('visible');
+        gifImg.classList.remove('visible'); // start fading the GIF out; canvas is always underneath
+        // Don't clear the GIF's src until its own fade-out transition has
+        // finished — clearing it mid-fade blanks the element instantly,
+        // which is what was causing the flash to black on every stop.
+        setTimeout(() => {
+          if (!isPlaying) gifImg.removeAttribute('src');
+        }, 350);
       }
     }
 
