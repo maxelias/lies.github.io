@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://file.garden">
 <link rel="preconnect" href="https://i.postimg.cc">
 <link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design.gif" fetchpriority="high">
-<link rel="preload" as="video" href="https://file.garden/aeSpG6iUoRzyQ8ca/ds.mp4">
+<link rel="preload" as="video" href="https://file.garden/aeSpG6iUoRzyQ8ca/download.mp4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="App Title">
@@ -60,41 +60,34 @@
   .content { width: 100%; contain: layout paint style; }
   #p1-content { background: #111111; }
   #p2-content { background: #111111; }
-  .main-gif { width: 100%; display: block; object-fit: cover; object-position: top center; }
+  .main-gif { width: 100%; display: block; }
   #gif-wrapper { position: relative; display: block; width: 100%; background: #111111; touch-action: pan-y; }
-  #main-gif { width: 100%; display: block; filter: brightness(1.18); will-change: transform; object-fit: cover; object-position: top center; }
+  #main-gif { width: 100%; display: block; filter: brightness(1.18); will-change: transform; }
 
   /* ══════════ Motion-activated GIF canvas ══════════ */
   #motion-permission-overlay {
-    position: fixed; inset: 0; z-index: 100001; /* above the intro splash, so it's the very first thing shown */
-    background: rgba(0,0,0,0.22); /* subtle — not a full dark cover */
-    display: flex; align-items: flex-start; justify-content: center;
-    padding-top: 70px;
-    opacity: 1; transition: opacity 0.4s ease;
+    position: fixed; inset: 0; z-index: 99998;
+    background: rgba(17,17,17,0.92);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 1; transition: opacity 0.5s ease;
     pointer-events: auto;
   }
   #motion-permission-overlay.hidden {
     opacity: 0; pointer-events: none;
   }
   #motion-activate-btn {
-    background: rgba(255,255,255,0.88); color: #111111;
-    font: 600 13px -apple-system, "SF Pro Display", Arial, sans-serif;
-    padding: 10px 20px; border-radius: 20px; border: none;
-    cursor: pointer; letter-spacing: -0.1px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    background: #ffffff; color: #111111;
+    font: 600 16px -apple-system, "SF Pro Display", Arial, sans-serif;
+    padding: 16px 32px; border-radius: 30px; border: none;
+    cursor: pointer; letter-spacing: -0.2px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     transition: transform 0.15s ease, opacity 0.15s ease;
   }
   #motion-activate-btn:active { transform: scale(0.96); opacity: 0.85; }
 
-  #motion-gif-wrapper { position: relative; width: 100%; filter: brightness(1.18); overflow: hidden; }
+  #motion-gif-wrapper { position: relative; width: 100%; filter: brightness(1.18); }
   #motion-gif-wrapper video#motion-gif {
-    width: 100%;
-    display: block; /* always looping, defines the wrapper's size */
-    object-fit: cover;
-    object-position: top center;
-    /* Prevent compositor from sampling the middle of a tall video during transforms */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
+    width: 100%; display: block; /* always looping, defines the wrapper's size */
   }
   /* Corner GIF: fixed position relative to the main video, plays constantly, never affected by motion state */
   #corner-gif {
@@ -345,7 +338,7 @@
   <div class="content" id="p1-content">
     <div id="gif-wrapper">
       <div id="motion-gif-wrapper">
-        <video id="motion-gif" class="main-gif" src="https://file.garden/aeSpG6iUoRzyQ8ca/ds.mp4" muted playsinline loop autoplay></video>
+        <video id="motion-gif" class="main-gif" src="https://file.garden/aeSpG6iUoRzyQ8ca/download.mp4" muted playsinline loop autoplay></video>
         <img id="corner-gif" src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20designe.gif" alt="">
       </div>
       <div id="licence-tap-left"></div>
@@ -863,12 +856,6 @@
     }, { passive: false });
   }
 
-  /* ══════════════ Go to page1 (no slide animation) ══════════════ */
-  function slideToPage1() {
-    if (p1.classList.contains('active')) return;
-    showPage(1);
-  }
-
   function initCarousel() {
     const carousel = document.getElementById("fav-carousel");
     const track = document.getElementById("fav-track");
@@ -1015,14 +1002,14 @@
         if (didDrag) return;
         if (index !== 1) return;
         e.stopPropagation();
-        slideToPage1();
+        showPage(1);
       });
       secondCard.addEventListener("touchend", e => {
         if (didDrag) return;
         if (index !== 1) return;
         e.preventDefault();
         e.stopPropagation();
-        slideToPage1();
+        showPage(1);
       }, { passive: false });
     }
   }
