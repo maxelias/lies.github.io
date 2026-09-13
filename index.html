@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://file.garden">
 <link rel="preconnect" href="https://i.postimg.cc">
 <link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design.gif" fetchpriority="high">
-<link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif">
+<link rel="preload" as="video" href="https://file.garden/aeSpG6iUoRzyQ8ca/download.mp4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="App Title">
@@ -86,14 +86,19 @@
   #motion-activate-btn:active { transform: scale(0.96); opacity: 0.85; }
 
   #motion-gif-wrapper { position: relative; width: 100%; filter: brightness(1.18); }
-  #motion-gif-wrapper img#motion-gif {
-    width: 100%; display: block; /* always playing, defines the wrapper's size */
+  #motion-gif-wrapper video#motion-gif {
+    width: 100%; display: block; /* always looping, defines the wrapper's size */
   }
-  #motion-gif-wrapper canvas {
-    width: 100%; display: block; position: absolute; top: 0; left: 0;
-    opacity: 1; transition: opacity 0.25s ease;
+  /* Corner GIF: fixed position relative to the main video, plays constantly, never affected by motion state */
+  #corner-gif {
+    position: absolute;
+    top: var(--corner-top, 14px);
+    left: var(--corner-left, 7px);
+    width: var(--corner-width, 18%);
+    z-index: 40;
+    pointer-events: none;
+    display: block;
   }
-  #motion-gif-wrapper canvas.hidden { opacity: 0; }
 
   #licence-tap-left, #licence-tap-right {
     position: absolute;
@@ -333,8 +338,8 @@
   <div class="content" id="p1-content">
     <div id="gif-wrapper">
       <div id="motion-gif-wrapper">
-        <img id="motion-gif" class="main-gif" src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif" alt="">
-        <canvas id="static-frame" class="main-gif"></canvas>
+        <video id="motion-gif" class="main-gif" src="https://file.garden/aeSpG6iUoRzyQ8ca/download.mp4" muted playsinline loop autoplay></video>
+        <img id="corner-gif" src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20designe.gif" alt="">
       </div>
       <div id="licence-tap-left"></div>
       <div id="licence-tap-right"></div>
@@ -424,7 +429,6 @@
   </div>
 </div>
 <script>
-  const GIF_SRC = "https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif";
   const FOOTER_IMAGES = {
     2: "https://file.garden/aeSpG6iUoRzyQ8ca/page2footer.png",
     3: "https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design%20(8).jpg",
@@ -765,51 +769,23 @@
   function initMotionCanvas() {
     const overlay = document.getElementById('motion-permission-overlay');
     const activateBtn = document.getElementById('motion-activate-btn');
-    const staticCanvas = document.getElementById('static-frame');
-    const staticCtx = staticCanvas.getContext('2d');
-    const gifImg = document.getElementById('motion-gif');
+    const video = document.getElementById('motion-gif');
 
-    // The GIF element itself is never hidden, paused, or reloaded — it just
-    // plays continuously in the background the whole time the page is open.
-    // A canvas overlay sits on top and is faded in/out to show a frozen frame;
-    // this avoids any network refetch or decode delay (which was causing the
-    // flash-to-black), since nothing about the <img> ever changes.
+    // Real <video> pause()/play() gives frame-accurate freeze/resume — no
+    // canvas tricks or reloading needed. Pausing stops exactly where it is;
+    // playing resumes from exactly that same point.
 
     const MOVE_THRESHOLD = 1.2;  // degrees of CHANGE per reading that counts as "moving" — sensitive
-    const STILL_DELAY = 120;     // ms of calm before freezing back to static — short = snappy pause
-    let isPlaying = false;
+    const STILL_DELAY = 120;     // ms of calm before freezing — short = snappy pause
+    let isPlaying = true; // video starts autoplaying/looping on page load
     let stillTimer = null;
     let lastBeta = null, lastGamma = null;
-
-    function syncCanvasSize() {
-      if (gifImg.naturalWidth) {
-        staticCanvas.width = gifImg.naturalWidth;
-        staticCanvas.height = gifImg.naturalHeight;
-      }
-    }
-    function captureFrame() {
-      syncCanvasSize();
-      try { staticCtx.drawImage(gifImg, 0, 0, staticCanvas.width, staticCanvas.height); }
-      catch (err) { /* ignore — keep whatever the canvas last had */ }
-    }
-
-    // Seed the canvas with a frame as soon as the GIF has loaded, so it isn't
-    // blank before the first freeze.
-    if (gifImg.complete && gifImg.naturalWidth) {
-      captureFrame();
-    } else {
-      gifImg.addEventListener('load', captureFrame, { once: true });
-    }
 
     function setPlaying(playing) {
       if (playing === isPlaying) return; // no-op if state hasn't changed — prevents flicker
       isPlaying = playing;
-      if (playing) {
-        staticCanvas.classList.add('hidden'); // reveal the always-running GIF underneath
-      } else {
-        captureFrame(); // freeze on whatever frame is showing right now
-        staticCanvas.classList.remove('hidden');
-      }
+      if (playing) { video.play().catch(() => {}); }
+      else { video.pause(); }
     }
 
     function handleOrientation(e) {
@@ -844,6 +820,10 @@
 
     function startListening() {
       window.addEventListener('deviceorientation', handleOrientation);
+      // Freeze on the current frame until the first real motion reading comes in,
+      // so it doesn't sit there looping before the user has moved at all.
+      video.pause();
+      isPlaying = false;
       overlay.classList.add('hidden');
       setTimeout(() => { overlay.style.display = 'none'; }, 500);
     }
@@ -860,7 +840,7 @@
         DeviceOrientationEvent.requestPermission()
           .then(state => {
             if (state === 'granted') { startListening(); }
-            else { dismissOverlay(); } // denied — app still works, just stays on static image
+            else { dismissOverlay(); } // denied — video just keeps looping normally
           })
           .catch(() => { dismissOverlay(); });
       } else {
