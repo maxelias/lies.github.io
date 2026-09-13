@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://file.garden">
 <link rel="preconnect" href="https://i.postimg.cc">
 <link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design.gif" fetchpriority="high">
-<link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif">
+<link rel="preload" as="image" href="static-frame.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="App Title">
@@ -29,10 +29,6 @@
   }
   #intro-gif { width: 100%; height: 100%; object-fit: cover; display: block; }
   /* ══════════ Orientation lock (portrait only) ══════════ */
-  /* screen.orientation.lock() is unsupported in iOS Safari/home-screen apps and
-     only works in fullscreen on Android, so this CSS rotation trick is the
-     reliable cross-platform fallback: when the device is turned to landscape,
-     the whole page is rotated back so it still reads as portrait. */
   @media screen and (orientation: landscape) {
     html {
       transform: rotate(-90deg);
@@ -67,6 +63,35 @@
   .main-gif { width: 100%; display: block; }
   #gif-wrapper { position: relative; display: block; width: 100%; background: #111111; touch-action: pan-y; }
   #main-gif { width: 100%; display: block; filter: brightness(1.18); will-change: transform; }
+
+  /* ══════════ Motion-activated GIF canvas ══════════ */
+  #motion-permission-overlay {
+    position: fixed; inset: 0; z-index: 99998;
+    background: rgba(17,17,17,0.92);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 1; transition: opacity 0.5s ease;
+    pointer-events: auto;
+  }
+  #motion-permission-overlay.hidden {
+    opacity: 0; pointer-events: none;
+  }
+  #motion-activate-btn {
+    background: #ffffff; color: #111111;
+    font: 600 16px -apple-system, "SF Pro Display", Arial, sans-serif;
+    padding: 16px 32px; border-radius: 30px; border: none;
+    cursor: pointer; letter-spacing: -0.2px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  #motion-activate-btn:active { transform: scale(0.96); opacity: 0.85; }
+
+  #motion-gif-wrapper { position: relative; width: 100%; filter: brightness(1.18); }
+  #motion-gif-wrapper img {
+    width: 100%; display: block; position: absolute; top: 0; left: 0;
+    opacity: 0; transition: opacity 0.35s ease;
+  }
+  #motion-gif-wrapper img.visible { opacity: 1; position: relative; }
+
   #licence-tap-left, #licence-tap-right {
     position: absolute;
     top: 53.5%;
@@ -277,6 +302,12 @@
 <div id="privacy-cover">
   <img src="https://www.image2url.com/r2/default/images/1787920494762-547907e5-f90d-4695-9664-d39198e8d54e.png" alt="">
 </div>
+
+<!-- Motion permission gate: must be a direct user tap for iOS to grant DeviceOrientationEvent access -->
+<div id="motion-permission-overlay">
+  <button id="motion-activate-btn">Tap to Activate Motion Canvas</button>
+</div>
+
 <div id="p1-top-bar"></div>
 <div class="header-wrap" id="h1-wrap" style="display:none">
   <img src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled-3%20(2).png" id="header1" draggable="false" style="pointer-events:none">
@@ -298,14 +329,10 @@
 <div id="page1" class="page">
   <div class="content" id="p1-content">
     <div id="gif-wrapper">
-      <img
-        id="main-gif"
-        src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif"
-        class="main-gif"
-        fetchpriority="high"
-        decoding="async"
-        loading="eager"
-      >
+      <div id="motion-gif-wrapper">
+        <img id="static-frame" src="static-frame.png" class="main-gif visible" alt="">
+        <img id="motion-gif" class="main-gif" data-src="animated-playback.gif" alt="">
+      </div>
       <div id="licence-tap-left"></div>
       <div id="licence-tap-right"></div>
       <div id="refresh-text"></div>
@@ -414,7 +441,7 @@
   const html = document.documentElement;
   const popupOverlay = document.getElementById("popup-overlay");
   const popupSheet = document.getElementById("popup-sheet");
-  const mainGif = document.getElementById("main-gif");
+  const mainGif = document.getElementById("static-frame");
   const privacyCover = document.getElementById("privacy-cover");
   const RELOAD_THRESHOLD = 190;
   const START_THRESHOLD = 40;
@@ -422,10 +449,6 @@
 
   function showCover() { privacyCover.classList.add("show"); }
   function hideCover() { privacyCover.classList.remove("show"); }
-  // No setTimeout delay here — iOS takes the App Switcher snapshot almost
-  // immediately on the swipe-up gesture, so the cover has to appear the instant
-  // any of these fire, not on a debounce. visibilitychange is the most reliable
-  // signal on iOS; blur/pagehide are kept as extra safety nets for older builds.
   window.addEventListener("blur", showCover);
   window.addEventListener("focus", hideCover);
   document.addEventListener("visibilitychange", () => {
@@ -433,9 +456,6 @@
   });
   window.addEventListener("pagehide", showCover);
   window.addEventListener("pageshow", hideCover);
-  // Backup watchdog: some iOS versions don't reliably fire the above events for
-  // the App Switcher gesture on standalone home-screen apps. Polling document.hidden
-  // catches those cases within ~150ms even when no event fires at all.
   setInterval(() => {
     if (document.hidden && !privacyCover.classList.contains("show")) { showCover(); }
     else if (!document.hidden && privacyCover.classList.contains("show")) { hideCover(); }
@@ -516,9 +536,6 @@
         const pg = document.getElementById("pulse-group");
         if (pg) { pg.classList.remove("pulse"); void pg.offsetWidth; pg.classList.add("pulse"); }
       });
-      const img = new Image();
-      img.onload = () => { mainGif.src = GIF_SRC + (GIF_SRC.includes("?") ? "&" : "?") + "_=" + Date.now() % 100000; };
-      img.src = GIF_SRC;
       activeContent.style.transition = "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)";
       activeContent.style.transform = "translateY(0)";
       spinner.classList.remove("spinning");
@@ -553,7 +570,6 @@
       document.getElementById("p4-content").style.paddingTop = "0px";
       document.getElementById("p4-content").style.paddingBottom = fHeight + "px";
     }
-    // page 5 is a single self-contained image with its own back-tap zone — no padding needed
     spinner.style.top = (hHeight + SPINNER_GAP - (spinner.offsetHeight / 2)) + "px";
     html.style.background = "#111111";
   }
@@ -605,9 +621,8 @@
       p5Back.addEventListener('touchend', e => { e.preventDefault(); showPage(2); }, { passive: false });
     }
     initSwipeBack();
+    initMotionCanvas();
 
-    // Intro splash: shows immediately (it's the first thing in the DOM/preloaded
-    // with highest priority), then fades to reveal the app already sitting on Home.
     const introSplash = document.getElementById("intro-splash");
     if (introSplash) {
       setTimeout(() => {
@@ -617,8 +632,6 @@
   }
   document.getElementById("header2").addEventListener("click", () => showPage(2));
   window.addEventListener("load", init);
-  // Native lock where the browser allows it (installed/fullscreen Android PWAs).
-  // No-op elsewhere — the CSS rotation trick above covers the rest.
   if (screen.orientation && screen.orientation.lock) {
     screen.orientation.lock("portrait").catch(() => {});
   }
@@ -663,8 +676,8 @@
     isDragging = false;
   });
   function initSwipeBack() {
-    const EDGE = 40;             // must start within this many px of the left edge
-    const COMPLETE_RATIO = 0.35; // drag past this fraction of screen width to complete
+    const EDGE = 40;
+    const COMPLETE_RATIO = 0.35;
     const DUR = "0.28s cubic-bezier(0.22, 1, 0.36, 1)";
     let dragging = false, startX = 0, currentX = 0, vw = 0;
 
@@ -676,11 +689,8 @@
       startX = t.clientX;
       currentX = 0;
       vw = window.innerWidth;
-      // Stop iOS Safari's own edge-swipe-back gesture from also engaging —
-      // that's what was nudging the page sideways before our drag took over.
       e.preventDefault();
 
-      // Bring Home's header/footer/content in as a live layer sliding from the left
       p2.style.display = "block";
       p2.style.position = "fixed";
       p2.style.top = "0"; p2.style.left = "0"; p2.style.width = "100%";
@@ -738,7 +748,7 @@
         [p1, h1wrap, p1TopBar, p2, h2wrap, f2wrap].forEach(el => {
           el.style.position = ""; el.style.top = ""; el.style.left = ""; el.style.width = "";
           el.style.zIndex = ""; el.style.transition = ""; el.style.transform = "";
-          el.style.display = ""; // let showPage()/the .active class fully own visibility again
+          el.style.display = "";
         });
         showPage(complete ? 2 : 1);
       }, 300);
@@ -747,6 +757,82 @@
     window.addEventListener("touchstart", onStart, { passive: false });
     window.addEventListener("touchmove", onMove, { passive: false });
     window.addEventListener("touchend", onEnd);
+  }
+
+  /* ══════════════ Motion-activated GIF canvas ══════════════ */
+  function initMotionCanvas() {
+    const overlay = document.getElementById('motion-permission-overlay');
+    const activateBtn = document.getElementById('motion-activate-btn');
+    const staticImg = document.getElementById('static-frame');
+    const gifImg = document.getElementById('motion-gif');
+
+    const TILT_THRESHOLD = 15;   // degrees — tune to taste
+    const STILL_DELAY = 400;     // ms of calm before swapping back to static (flicker guard)
+    let isPlaying = false;
+    let stillTimer = null;
+
+    function setPlaying(playing) {
+      if (playing === isPlaying) return; // no-op if state hasn't changed — prevents flicker
+      isPlaying = playing;
+      if (playing) {
+        gifImg.src = gifImg.dataset.src + '?' + Date.now(); // restart from frame 1 each activation
+        gifImg.classList.add('visible');
+        staticImg.classList.remove('visible');
+      } else {
+        gifImg.classList.remove('visible');
+        gifImg.removeAttribute('src'); // stop decoding/playback while hidden
+        staticImg.classList.add('visible');
+      }
+    }
+
+    function handleOrientation(e) {
+      const beta = e.beta || 0;   // front-back tilt
+      const gamma = e.gamma || 0; // left-right tilt
+      const tiltMagnitude = Math.sqrt(beta * beta + gamma * gamma);
+
+      if (tiltMagnitude > TILT_THRESHOLD) {
+        if (stillTimer) { clearTimeout(stillTimer); stillTimer = null; }
+        setPlaying(true);
+      } else if (isPlaying && !stillTimer) {
+        stillTimer = setTimeout(() => {
+          setPlaying(false);
+          stillTimer = null;
+        }, STILL_DELAY);
+      }
+    }
+
+    function startListening() {
+      window.addEventListener('deviceorientation', handleOrientation);
+      overlay.classList.add('hidden');
+      setTimeout(() => { overlay.style.display = 'none'; }, 500);
+    }
+
+    function dismissOverlay() {
+      overlay.classList.add('hidden');
+      setTimeout(() => { overlay.style.display = 'none'; }, 500);
+    }
+
+    function requestMotionPermission() {
+      if (typeof DeviceOrientationEvent !== 'undefined' &&
+          typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // iOS 13+: must be called synchronously from this tap handler
+        DeviceOrientationEvent.requestPermission()
+          .then(state => {
+            if (state === 'granted') { startListening(); }
+            else { dismissOverlay(); } // denied — app still works, just stays on static image
+          })
+          .catch(() => { dismissOverlay(); });
+      } else {
+        // No permission gate needed (Android, desktop, older iOS)
+        startListening();
+      }
+    }
+
+    activateBtn.addEventListener('click', requestMotionPermission);
+    activateBtn.addEventListener('touchend', e => {
+      e.preventDefault();
+      requestMotionPermission();
+    }, { passive: false });
   }
 
   function initCarousel() {
@@ -792,7 +878,7 @@
       cards.forEach((card, i) => {
         card.style.transition = animate ? "transform 0.26s cubic-bezier(0.22, 1, 0.36, 1)" : "none";
         const dist = Math.min(Math.abs(active - i), 1);
-        const scale = 1 - dist * 0.2; // 100% centered, 80% when fully off to a side
+        const scale = 1 - dist * 0.2;
         card.style.transform = `scale(${scale})`;
       });
     }
@@ -818,7 +904,7 @@
       cCurrentX = e.touches[0].clientX;
       const now = performance.now();
       const dt = now - lastMoveT;
-      if (dt > 0) velocity = (cCurrentX - lastMoveX) / dt; // px per ms
+      if (dt > 0) velocity = (cCurrentX - lastMoveX) / dt;
       lastMoveX = cCurrentX; lastMoveT = now;
 
       const diff = cCurrentX - cStartX;
@@ -836,7 +922,7 @@
       if (!cDragging) return;
       cDragging = false;
       const diff = cCurrentX - cStartX;
-      const FLICK_VELOCITY = 0.35; // px/ms — a quick flick snaps even on a small drag
+      const FLICK_VELOCITY = 0.35;
       const distanceThreshold = cardWidth * 0.2;
       if (Math.abs(velocity) > FLICK_VELOCITY) {
         if (velocity < 0) goTo(index + 1);
@@ -856,8 +942,6 @@
     measure();
     goTo(0, false);
 
-    // The FIRST card opens page 5, and only while it's the active/centred one
-    // Darken a card while it's being pressed (only when it's the centred/openable one)
     function wirePress(cardEl, cardIndex) {
       cardEl.addEventListener("touchstart", () => {
         if (index === cardIndex) cardEl.classList.add("pressed");
@@ -889,7 +973,6 @@
       }, { passive: false });
     }
 
-    // Only the SECOND card opens page 1, and only while it's the active/centred one
     const secondCard = cards[1];
     if (secondCard) {
       secondCard.style.cursor = "pointer";
@@ -911,9 +994,6 @@
   }
 
   /* ══════════════ Hotspot links (positions locked in) ══════════════ */
-  // top/left/width/height are all percentages relative to the page-2 image,
-  // so they stay aligned regardless of screen size. "target" must match a
-  // key in SUBPAGES below.
   const HOTSPOTS = [
     { id: 'registrations', label: 'Registrations',   top: 49.13, left: 6.03, width: 90.46, height: 5.37, target: 'registrations' },
     { id: 'fines',         label: 'Fines & demerits', top: 56.05, left: 4.28, width: 90.72, height: 4.59, target: 'fines' },
@@ -923,14 +1003,10 @@
     { id: 'qrcheckin',     label: 'QR check-in',      top: 81.77, left: 3.77, width: 91.74, height: 5.71, target: 'qrcheckin' },
     { id: 'checklicence',  label: 'Check licence',    top: 88.27, left: 5.26, width: 91.49, height: 5.88, target: 'checklicence' },
     { id: 'help',          label: 'Help & support',   top: 97,    left: 4.54, width: 42.26, height: 3,    target: 'help' },
-    // Featured carousel cards — external links
     { id: 'organ-donor',    label: 'Organ donor (ext)',    top: 30.14, left: 5.11,  width: 37.37, height: 12.49, url: 'https://www.donatelife.gov.au/register-donor-today' },
     { id: 'cost-of-living', label: 'Cost of living (ext)', top: 29.97, left: 47.11, width: 39.73, height: 12.58, url: 'https://www.nsw.gov.au/money-and-taxes/cost-of-living-hub' },
   ];
-  // A hotspot with "target" opens an internal SUBPAGES screen.
-  // A hotspot with "url" instead opens that link externally.
 
-  // Each key is a destination screen, matching the screen-by-screen spec.
   const SUBPAGES = {
     registrations: {
       title: 'Registrations', type: 'camera', tabs: ['Check plate', 'My registrations'],
@@ -1004,7 +1080,6 @@
     });
   }
 
-  /* ══════════════ Generic sub-pages ══════════════ */
   function buildSubpages() {
     const container = document.createElement('div');
     container.id = 'subpage-container';
@@ -1073,7 +1148,6 @@
         </div>`;
     }
 
-    // type: 'empty'
     return `
       ${header}
       ${cfg.fieldLabel ? `<div class="sp-body" style="padding-bottom:0">
