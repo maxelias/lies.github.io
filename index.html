@@ -863,97 +863,10 @@
     }, { passive: false });
   }
 
-  /* ══════════════ Forward slide: page2 → page1 (right to left, fast) ══════════════ */
+  /* ══════════════ Go to page1 (no slide animation) ══════════════ */
   function slideToPage1() {
     if (p1.classList.contains('active')) return;
-    const DUR = '0.22s cubic-bezier(0.22, 1, 0.36, 1)';
-
-    p1.classList.add('active'); // lets setOffsets() compute page1's padding correctly below
-    setOffsets();
-
-    // Constrain the sliding page to the viewport. Without an explicit height +
-    // overflow:hidden, tall video content causes the compositor (especially on
-    // iOS) to sample the *center* of the video texture while the page is
-    // translating, which looks glitched. Forcing viewport height + top alignment
-    // makes the visible frame start at the top of the video.
-    p1.style.display = 'block';
-    p1.style.position = 'fixed';
-    p1.style.top = '0';
-    p1.style.left = '0';
-    p1.style.width = '100%';
-    p1.style.height = '100%';
-    p1.style.overflow = 'hidden';
-    p1.style.zIndex = '950';
-    p1.style.transition = 'none';
-    p1.style.transform = 'translateX(100%)';
-
-    // Make the video fill the available area from the top during the slide.
-    // Intermediate containers also need an explicit height so % heights resolve
-    // and the video is forced into a top-aligned box instead of its natural tall size.
-    const p1Content = document.getElementById('p1-content');
-    const gifWrapper = document.getElementById('gif-wrapper');
-    const motionWrap = document.getElementById('motion-gif-wrapper');
-    const motionVid = document.getElementById('motion-gif');
-    if (p1Content) {
-      p1Content.style.height = '100%';
-      p1Content.style.boxSizing = 'border-box';
-    }
-    if (gifWrapper) gifWrapper.style.height = '100%';
-    if (motionWrap) motionWrap.style.height = '100%';
-    if (motionVid) {
-      motionVid.style.height = '100%';
-      motionVid.style.objectFit = 'cover';
-      motionVid.style.objectPosition = 'top center';
-    }
-
-    h1wrap.style.display = 'block';
-    h1wrap.style.top = '10px';
-    h1wrap.style.zIndex = '951';
-    h1wrap.style.transition = 'none';
-    h1wrap.style.transform = 'translateX(100%)';
-
-    p1TopBar.style.display = 'block';
-    p1TopBar.style.zIndex = '951';
-    p1TopBar.style.transition = 'none';
-    p1TopBar.style.transform = 'translateX(100%)';
-
-    // Force a reflow so the "start" transform above actually applies before animating
-    p1.getBoundingClientRect();
-    requestAnimationFrame(() => {
-      p1.style.transition = `transform ${DUR}`;
-      h1wrap.style.transition = `transform ${DUR}`;
-      p1TopBar.style.transition = `transform ${DUR}`;
-      p1.style.transform = 'translateX(0)';
-      h1wrap.style.transform = 'translateX(0)';
-      p1TopBar.style.transform = 'translateX(0)';
-    });
-
-    setTimeout(() => {
-      [p1, h1wrap, p1TopBar].forEach(el => {
-        el.style.position = '';
-        el.style.top = '';
-        el.style.left = '';
-        el.style.width = '';
-        el.style.height = '';
-        el.style.overflow = '';
-        el.style.zIndex = '';
-        el.style.transition = '';
-        el.style.transform = '';
-        el.style.display = '';
-      });
-      // Restore natural (auto) sizing after the transition so the full video can scroll
-      if (p1Content) {
-        p1Content.style.height = '';
-        p1Content.style.boxSizing = '';
-      }
-      if (gifWrapper) gifWrapper.style.height = '';
-      if (motionWrap) motionWrap.style.height = '';
-      if (motionVid) {
-        motionVid.style.height = '';
-        // keep the permanent object-fit / object-position from CSS
-      }
-      showPage(1); // finalizes real state (page2 inactive, paddings, localStorage, etc.)
-    }, 260);
+    showPage(1);
   }
 
   function initCarousel() {
