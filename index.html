@@ -770,10 +770,11 @@
     const staticCtx = staticCanvas.getContext('2d');
     const gifImg = document.getElementById('motion-gif');
 
-    const TILT_THRESHOLD = 15;   // degrees — tune to taste
-    const STILL_DELAY = 400;     // ms of calm before swapping back to static (flicker guard)
+    const TILT_THRESHOLD = 4;    // degrees of CHANGE per reading that counts as "moving"
+    const STILL_DELAY = 500;     // ms of calm before swapping back to static (flicker guard)
     let isPlaying = false;
     let stillTimer = null;
+    let lastBeta = null, lastGamma = null;
 
     // Grab the GIF's first frame with an offscreen Image + canvas, so we don't
     // need a separate static-frame.png file. Captured the instant it loads,
@@ -790,6 +791,9 @@
     }
     captureFirstFrame();
 
+    // Needed for canvas to read pixel data from this cross-origin GIF without tainting
+    gifImg.crossOrigin = 'anonymous';
+
     function setPlaying(playing) {
       if (playing === isPlaying) return; // no-op if state hasn't changed — prevents flicker
       isPlaying = playing;
@@ -798,6 +802,13 @@
         gifImg.classList.add('visible');
         staticCanvas.classList.remove('visible');
       } else {
+        // Capture whatever frame the GIF is showing right now, so the static
+        // image is the last frame it was on — not always the first frame.
+        if (gifImg.naturalWidth) {
+          staticCanvas.width = gifImg.naturalWidth;
+          staticCanvas.height = gifImg.naturalHeight;
+          try { staticCtx.drawImage(gifImg, 0, 0); } catch (err) { /* CORS-tainted canvas — keep prior frame */ }
+        }
         gifImg.classList.remove('visible');
         gifImg.removeAttribute('src'); // stop decoding/playback while hidden
         staticCanvas.classList.add('visible');
@@ -807,9 +818,23 @@
     function handleOrientation(e) {
       const beta = e.beta || 0;   // front-back tilt
       const gamma = e.gamma || 0; // left-right tilt
-      const tiltMagnitude = Math.sqrt(beta * beta + gamma * gamma);
 
-      if (tiltMagnitude > TILT_THRESHOLD) {
+      if (lastBeta === null) {
+        // first reading — nothing to compare against yet, just store it
+        lastBeta = beta;
+        lastGamma = gamma;
+        return;
+      }
+
+      // How much the device's orientation changed since the last reading —
+      // this is what actually signals physical movement, not the raw angle.
+      const deltaMagnitude = Math.sqrt(
+        Math.pow(beta - lastBeta, 2) + Math.pow(gamma - lastGamma, 2)
+      );
+      lastBeta = beta;
+      lastGamma = gamma;
+
+      if (deltaMagnitude > TILT_THRESHOLD) {
         if (stillTimer) { clearTimeout(stillTimer); stillTimer = null; }
         setPlaying(true);
       } else if (isPlaying && !stillTimer) {
