@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://file.garden">
 <link rel="preconnect" href="https://i.postimg.cc">
 <link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design.gif" fetchpriority="high">
-<link rel="preload" as="image" href="static-frame.png">
+<link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="App Title">
@@ -86,11 +86,14 @@
   #motion-activate-btn:active { transform: scale(0.96); opacity: 0.85; }
 
   #motion-gif-wrapper { position: relative; width: 100%; filter: brightness(1.18); }
-  #motion-gif-wrapper img {
+  #motion-gif-wrapper img,
+  #motion-gif-wrapper canvas {
     width: 100%; display: block; position: absolute; top: 0; left: 0;
     opacity: 0; transition: opacity 0.35s ease;
   }
-  #motion-gif-wrapper img.visible { opacity: 1; position: relative; }
+  #motion-gif-wrapper img.visible,
+  #motion-gif-wrapper canvas.visible { opacity: 1; position: relative; }
+  #motion-gif-wrapper canvas { height: auto; }
 
   #licence-tap-left, #licence-tap-right {
     position: absolute;
@@ -293,7 +296,7 @@
   <img
     id="intro-gif"
     src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design.gif"
-    alt="https://file.garden/aeSpG6iUoRzyQ8ca/IMG_8617.gif"
+    alt=""
     fetchpriority="high"
     decoding="async"
     loading="eager"
@@ -330,8 +333,8 @@
   <div class="content" id="p1-content">
     <div id="gif-wrapper">
       <div id="motion-gif-wrapper">
-        <img id="static-frame" src="static-frame.png" class="main-gif visible" alt="">
-        <img id="motion-gif" class="main-gif" data-src="animated-playback.gif" alt="">
+        <canvas id="static-frame" class="main-gif visible"></canvas>
+        <img id="motion-gif" class="main-gif" data-src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20(11).gif" alt="">
       </div>
       <div id="licence-tap-left"></div>
       <div id="licence-tap-right"></div>
@@ -763,7 +766,8 @@
   function initMotionCanvas() {
     const overlay = document.getElementById('motion-permission-overlay');
     const activateBtn = document.getElementById('motion-activate-btn');
-    const staticImg = document.getElementById('static-frame');
+    const staticCanvas = document.getElementById('static-frame');
+    const staticCtx = staticCanvas.getContext('2d');
     const gifImg = document.getElementById('motion-gif');
 
     const TILT_THRESHOLD = 15;   // degrees — tune to taste
@@ -771,17 +775,32 @@
     let isPlaying = false;
     let stillTimer = null;
 
+    // Grab the GIF's first frame with an offscreen Image + canvas, so we don't
+    // need a separate static-frame.png file. Captured the instant it loads,
+    // before the GIF has a chance to animate further.
+    function captureFirstFrame() {
+      const grabber = new Image();
+      grabber.crossOrigin = 'anonymous';
+      grabber.onload = () => {
+        staticCanvas.width = grabber.naturalWidth;
+        staticCanvas.height = grabber.naturalHeight;
+        staticCtx.drawImage(grabber, 0, 0);
+      };
+      grabber.src = gifImg.dataset.src;
+    }
+    captureFirstFrame();
+
     function setPlaying(playing) {
       if (playing === isPlaying) return; // no-op if state hasn't changed — prevents flicker
       isPlaying = playing;
       if (playing) {
         gifImg.src = gifImg.dataset.src + '?' + Date.now(); // restart from frame 1 each activation
         gifImg.classList.add('visible');
-        staticImg.classList.remove('visible');
+        staticCanvas.classList.remove('visible');
       } else {
         gifImg.classList.remove('visible');
         gifImg.removeAttribute('src'); // stop decoding/playback while hidden
-        staticImg.classList.add('visible');
+        staticCanvas.classList.add('visible');
       }
     }
 
