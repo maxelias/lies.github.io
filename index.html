@@ -60,9 +60,9 @@
   .content { width: 100%; contain: layout paint style; }
   #p1-content { background: #111111; }
   #p2-content { background: #111111; }
-  .main-gif { width: 100%; display: block; object-fit: cover; object-position: top; }
+  .main-gif { width: 100%; display: block; object-fit: cover; object-position: top center; }
   #gif-wrapper { position: relative; display: block; width: 100%; background: #111111; touch-action: pan-y; }
-  #main-gif { width: 100%; display: block; filter: brightness(1.18); will-change: transform; object-fit: cover; object-position: top; }
+  #main-gif { width: 100%; display: block; filter: brightness(1.18); will-change: transform; object-fit: cover; object-position: top center; }
 
   /* ══════════ Motion-activated GIF canvas ══════════ */
   #motion-permission-overlay {
@@ -86,11 +86,15 @@
   }
   #motion-activate-btn:active { transform: scale(0.96); opacity: 0.85; }
 
-  #motion-gif-wrapper { position: relative; width: 100%; filter: brightness(1.18); }
+  #motion-gif-wrapper { position: relative; width: 100%; filter: brightness(1.18); overflow: hidden; }
   #motion-gif-wrapper video#motion-gif {
-    width: 100%; display: block; /* always looping, defines the wrapper's size */
+    width: 100%;
+    display: block; /* always looping, defines the wrapper's size */
     object-fit: cover;
-    object-position: top;
+    object-position: top center;
+    /* Prevent compositor from sampling the middle of a tall video during transforms */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
   /* Corner GIF: fixed position relative to the main video, plays constantly, never affected by motion state */
   #corner-gif {
@@ -867,12 +871,40 @@
     p1.classList.add('active'); // lets setOffsets() compute page1's padding correctly below
     setOffsets();
 
+    // Constrain the sliding page to the viewport. Without an explicit height +
+    // overflow:hidden, tall video content causes the compositor (especially on
+    // iOS) to sample the *center* of the video texture while the page is
+    // translating, which looks glitched. Forcing viewport height + top alignment
+    // makes the visible frame start at the top of the video.
     p1.style.display = 'block';
     p1.style.position = 'fixed';
-    p1.style.top = '0'; p1.style.left = '0'; p1.style.width = '100%';
+    p1.style.top = '0';
+    p1.style.left = '0';
+    p1.style.width = '100%';
+    p1.style.height = '100%';
+    p1.style.overflow = 'hidden';
     p1.style.zIndex = '950';
     p1.style.transition = 'none';
     p1.style.transform = 'translateX(100%)';
+
+    // Make the video fill the available area from the top during the slide.
+    // Intermediate containers also need an explicit height so % heights resolve
+    // and the video is forced into a top-aligned box instead of its natural tall size.
+    const p1Content = document.getElementById('p1-content');
+    const gifWrapper = document.getElementById('gif-wrapper');
+    const motionWrap = document.getElementById('motion-gif-wrapper');
+    const motionVid = document.getElementById('motion-gif');
+    if (p1Content) {
+      p1Content.style.height = '100%';
+      p1Content.style.boxSizing = 'border-box';
+    }
+    if (gifWrapper) gifWrapper.style.height = '100%';
+    if (motionWrap) motionWrap.style.height = '100%';
+    if (motionVid) {
+      motionVid.style.height = '100%';
+      motionVid.style.objectFit = 'cover';
+      motionVid.style.objectPosition = 'top center';
+    }
 
     h1wrap.style.display = 'block';
     h1wrap.style.top = '10px';
@@ -898,9 +930,28 @@
 
     setTimeout(() => {
       [p1, h1wrap, p1TopBar].forEach(el => {
-        el.style.position = ''; el.style.top = ''; el.style.left = ''; el.style.width = '';
-        el.style.zIndex = ''; el.style.transition = ''; el.style.transform = ''; el.style.display = '';
+        el.style.position = '';
+        el.style.top = '';
+        el.style.left = '';
+        el.style.width = '';
+        el.style.height = '';
+        el.style.overflow = '';
+        el.style.zIndex = '';
+        el.style.transition = '';
+        el.style.transform = '';
+        el.style.display = '';
       });
+      // Restore natural (auto) sizing after the transition so the full video can scroll
+      if (p1Content) {
+        p1Content.style.height = '';
+        p1Content.style.boxSizing = '';
+      }
+      if (gifWrapper) gifWrapper.style.height = '';
+      if (motionWrap) motionWrap.style.height = '';
+      if (motionVid) {
+        motionVid.style.height = '';
+        // keep the permanent object-fit / object-position from CSS
+      }
       showPage(1); // finalizes real state (page2 inactive, paddings, localStorage, etc.)
     }, 260);
   }
