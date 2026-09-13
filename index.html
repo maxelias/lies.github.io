@@ -92,7 +92,7 @@
   /* Corner GIF: fixed position relative to the main video, plays constantly, never affected by motion state */
   #corner-gif {
     position: absolute;
-    top: var(--corner-top, 14px);
+    top: var(--corner-top, 28px);
     left: var(--corner-left, 7px);
     width: var(--corner-width, 18%);
     z-index: 40;
@@ -775,7 +775,7 @@
     // canvas tricks or reloading needed. Pausing stops exactly where it is;
     // playing resumes from exactly that same point.
 
-    const MOVE_THRESHOLD = 1.2;  // degrees of CHANGE per reading that counts as "moving" — sensitive
+    const MOVE_THRESHOLD = 0.6;  // degrees of CHANGE per reading that counts as "moving" — more sensitive
     const STILL_DELAY = 120;     // ms of calm before freezing — short = snappy pause
     let isPlaying = true; // video starts autoplaying/looping on page load
     let stillTimer = null;
