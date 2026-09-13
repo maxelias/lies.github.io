@@ -66,21 +66,22 @@
 
   /* ══════════ Motion-activated GIF canvas ══════════ */
   #motion-permission-overlay {
-    position: fixed; inset: 0; z-index: 99998;
-    background: rgba(17,17,17,0.92);
-    display: flex; align-items: center; justify-content: center;
-    opacity: 1; transition: opacity 0.5s ease;
+    position: fixed; inset: 0; z-index: 100001; /* above the intro splash, so it's the very first thing shown */
+    background: rgba(0,0,0,0.22); /* subtle — not a full dark cover */
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: 70px;
+    opacity: 1; transition: opacity 0.4s ease;
     pointer-events: auto;
   }
   #motion-permission-overlay.hidden {
     opacity: 0; pointer-events: none;
   }
   #motion-activate-btn {
-    background: #ffffff; color: #111111;
-    font: 600 16px -apple-system, "SF Pro Display", Arial, sans-serif;
-    padding: 16px 32px; border-radius: 30px; border: none;
-    cursor: pointer; letter-spacing: -0.2px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    background: rgba(255,255,255,0.88); color: #111111;
+    font: 600 13px -apple-system, "SF Pro Display", Arial, sans-serif;
+    padding: 10px 20px; border-radius: 20px; border: none;
+    cursor: pointer; letter-spacing: -0.1px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
     transition: transform 0.15s ease, opacity 0.15s ease;
   }
   #motion-activate-btn:active { transform: scale(0.96); opacity: 0.85; }
@@ -856,6 +857,52 @@
     }, { passive: false });
   }
 
+  /* ══════════════ Forward slide: page2 → page1 (right to left, fast) ══════════════ */
+  function slideToPage1() {
+    if (p1.classList.contains('active')) return;
+    const DUR = '0.22s cubic-bezier(0.22, 1, 0.36, 1)';
+
+    p1.classList.add('active'); // lets setOffsets() compute page1's padding correctly below
+    setOffsets();
+
+    p1.style.display = 'block';
+    p1.style.position = 'fixed';
+    p1.style.top = '0'; p1.style.left = '0'; p1.style.width = '100%';
+    p1.style.zIndex = '950';
+    p1.style.transition = 'none';
+    p1.style.transform = 'translateX(100%)';
+
+    h1wrap.style.display = 'block';
+    h1wrap.style.top = '10px';
+    h1wrap.style.zIndex = '951';
+    h1wrap.style.transition = 'none';
+    h1wrap.style.transform = 'translateX(100%)';
+
+    p1TopBar.style.display = 'block';
+    p1TopBar.style.zIndex = '951';
+    p1TopBar.style.transition = 'none';
+    p1TopBar.style.transform = 'translateX(100%)';
+
+    // Force a reflow so the "start" transform above actually applies before animating
+    p1.getBoundingClientRect();
+    requestAnimationFrame(() => {
+      p1.style.transition = `transform ${DUR}`;
+      h1wrap.style.transition = `transform ${DUR}`;
+      p1TopBar.style.transition = `transform ${DUR}`;
+      p1.style.transform = 'translateX(0)';
+      h1wrap.style.transform = 'translateX(0)';
+      p1TopBar.style.transform = 'translateX(0)';
+    });
+
+    setTimeout(() => {
+      [p1, h1wrap, p1TopBar].forEach(el => {
+        el.style.position = ''; el.style.top = ''; el.style.left = ''; el.style.width = '';
+        el.style.zIndex = ''; el.style.transition = ''; el.style.transform = ''; el.style.display = '';
+      });
+      showPage(1); // finalizes real state (page2 inactive, paddings, localStorage, etc.)
+    }, 260);
+  }
+
   function initCarousel() {
     const carousel = document.getElementById("fav-carousel");
     const track = document.getElementById("fav-track");
@@ -1002,14 +1049,14 @@
         if (didDrag) return;
         if (index !== 1) return;
         e.stopPropagation();
-        showPage(1);
+        slideToPage1();
       });
       secondCard.addEventListener("touchend", e => {
         if (didDrag) return;
         if (index !== 1) return;
         e.preventDefault();
         e.stopPropagation();
-        showPage(1);
+        slideToPage1();
       }, { passive: false });
     }
   }
