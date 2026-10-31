@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>App Title</title>
+<title>Service NSW</title>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc https://files.catbox.moe; img-src 'self' data: https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc https://files.catbox.moe; media-src 'self' https://file.garden https://files.catbox.moe blob:; connect-src 'self'; script-src 'self' 'unsafe-inline';">
 <link rel="icon" href="https://play-lh.googleusercontent.com/uulKLexOFnvrpg5ltH3jBAnCbMMed6VbaogVr9etutmFXO-P5w0JRa7sgJ1EstibjtI=w240-h480-rw" type="image/png">
 <link rel="apple-touch-icon" href="https://file.garden/aeSpG6iUoRzyQ8ca/Screenshot%202026-04-28%20at%204.53.50%E2%80%AFpm.png">
@@ -47,9 +47,9 @@
   #page2 { background: #111111; }
   #page3 { background: #111111; }
   #page4 { background: #111111; }
-  #page5 { background: #111111; padding-top: env(safe-area-inset-top, 0px); }
+  #page5 { background: #111111; padding-top: calc(env(safe-area-inset-top, 0px) - 8px); }
   #p1-top-bar { position: fixed; top: 0; left: 0; width: 100%; height: 10px; background: #111111; z-index: 1000; display: none; }
-  .header-wrap { position: fixed; top: 0; left: 0; width: 100%; z-index: 999; background: #111111; padding-top: env(safe-area-inset-top, 0px); }
+  .header-wrap { position: fixed; top: 0; left: 0; width: 100%; z-index: 999; background: #111111; padding-top: calc(env(safe-area-inset-top, 0px) - 8px); }
   #h2-wrap { background: #111111; }
   .header-wrap img { width: 100%; display: block; }
   #header1-zones { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; }
@@ -225,7 +225,7 @@
   .subpage.open { transform: translateX(0); }
   .sp-header {
     position: sticky; top: 0; background: #111;
-    padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px 14px;
+    padding: calc(env(safe-area-inset-top, 0px) + 2px) 16px 14px;
     display: flex; align-items: center; gap: 12px;
     border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 2;
   }
@@ -242,7 +242,7 @@
   .sp-dot:nth-child(3) { animation-delay: 0.3s; }
   @keyframes dotPulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
 
-  .sp-camera { position: relative; width: 100%; height: calc(100vh - 130px - env(safe-area-inset-top, 0px)); background: #000; overflow: hidden; }
+  .sp-camera { position: relative; width: 100%; height: calc(100vh - 130px - env(safe-area-inset-top, 0px) + 8px); background: #000; overflow: hidden; }
   .sp-camera video { width: 100%; height: 100%; object-fit: cover; }
   .sp-camera-msg { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: #a8b0b8; text-align: center; padding: 0 30px; font: 14px/1.5 -apple-system, Arial, sans-serif; }
   .sp-viewfinder { position: absolute; top: 48%; left: 50%; width: 78%; aspect-ratio: 16/9; transform: translate(-50%, -50%); }
@@ -575,7 +575,7 @@
       document.getElementById("p3-content").style.paddingTop = (hHeight + 40) + "px";
       document.getElementById("p3-content").style.paddingBottom = fHeight + "px";
     } else if (n === 4) {
-      document.getElementById("p4-content").style.paddingTop = "env(safe-area-inset-top, 0px)";
+      document.getElementById("p4-content").style.paddingTop = "calc(env(safe-area-inset-top, 0px) - 8px)";
       document.getElementById("p4-content").style.paddingBottom = fHeight + "px";
     }
     spinner.style.top = (hHeight + SPINNER_GAP - (spinner.offsetHeight / 2)) + "px";
@@ -784,7 +784,7 @@
     // canvas tricks or reloading needed. Pausing stops exactly where it is;
     // playing resumes from exactly that same point.
 
-    const MOVE_THRESHOLD = 0.6;  // degrees of CHANGE per reading that counts as "moving" — more sensitive
+    const MOVE_THRESHOLD = 0.32;  // degrees of CHANGE per reading that counts as "moving" — more sensitive
     const STILL_DELAY = 120;     // ms of calm before freezing — short = snappy pause
     let isPlaying = true; // video starts autoplaying/looping on page load
     let stillTimer = null;
