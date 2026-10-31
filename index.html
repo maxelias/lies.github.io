@@ -633,9 +633,16 @@
 
     const introSplash = document.getElementById("intro-splash");
     if (introSplash) {
-      setTimeout(() => {
+      if (localStorage.getItem("introSeen") === "1") {
+        // Already played once — never show again
         introSplash.style.display = "none";
-      }, 2900);
+      } else {
+        // First launch only: play once, then mark as seen
+        setTimeout(() => {
+          introSplash.style.display = "none";
+          localStorage.setItem("introSeen", "1");
+        }, 2900);
+      }
     }
   }
   document.getElementById("header2").addEventListener("click", () => showPage(2));
